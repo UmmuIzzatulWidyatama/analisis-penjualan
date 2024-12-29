@@ -40,11 +40,6 @@ class AuthController extends BaseController
         }
     }
 
-    public function dashboard()
-    {
-        return view('dashboard');
-    }
-
     public function logout()
     {
         session()->destroy();
