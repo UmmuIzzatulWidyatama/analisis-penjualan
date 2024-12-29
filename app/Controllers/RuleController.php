@@ -2,6 +2,8 @@
 
 namespace App\Controllers;
 
+use App\Models\RuleModel;
+
 class RuleController extends BaseController
 {
     public function index()
@@ -13,6 +15,8 @@ class RuleController extends BaseController
             return redirect()->to('/login')->with('error', 'Anda harus login terlebih dahulu.');
         }
 
-        return view('rule');
+        $model = new RuleModel();
+        $data['rules'] = $model->findAll(); // Ambil semua data dari tabel rules
+        return view('rule', $data); // Kirim data ke view
     }
 }

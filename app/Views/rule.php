@@ -48,6 +48,31 @@
         .content {
             padding: 20px;
         }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        table th, table td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: left;
+        }
+        table th {
+            background-color: #f4f4f4;
+        }
+        .btn {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            text-align: center;
+        }
+        .btn:hover {
+            background-color: #0056b3;
+        }
     </style>
 </head>
 <body> 
@@ -63,8 +88,33 @@
     </div>
     <div class="content">
         <!-- Konten untuk halaman Rule -->
-        <h1>Halaman Rule</h1>
-        <p>Konten untuk manajemen rule akan ditampilkan di sini.</p>
+        <h1>Rule</h1>
+        <table>
+            <thead>
+                <tr>
+                    <th>Nama</th>
+                    <th>Minimum Value</th>
+                    <th>Aksi</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php if (!empty($rules)): ?>
+                    <?php foreach ($rules as $rule): ?>
+                        <tr>
+                            <td><?= esc($rule['name']) ?></td>
+                            <td><?= esc($rule['value']) ?>%</td>
+                            <td>
+                                <button class="btn">Ubah</button>
+                            </td>
+                        </tr>
+                    <?php endforeach; ?>
+                <?php else: ?>
+                    <tr>
+                        <td colspan="3">Tidak ada data.</td>
+                    </tr>
+                <?php endif; ?>
+            </tbody>
+        </table>
     </div>
 </body>
 </html>
