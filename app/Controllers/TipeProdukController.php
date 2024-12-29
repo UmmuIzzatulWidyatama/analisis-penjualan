@@ -2,7 +2,7 @@
 
 namespace App\Controllers;
 
-class DashboardController extends BaseController
+class TipeProdukController extends BaseController
 {
     public function index()
     {
@@ -13,6 +13,6 @@ class DashboardController extends BaseController
             return redirect()->to('/login')->with('error', 'Anda harus login terlebih dahulu.');
         }
 
-        return view('dashboard');
+        return view('tipe-produk');
     }
 }

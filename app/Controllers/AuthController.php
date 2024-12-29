@@ -29,7 +29,7 @@ class AuthController extends BaseController
                     'username' => $user['username'],
                     'logged_in' => true,
                 ]);
-                return redirect()->to('/dashboard'); // Redirect ke dashboard
+                return redirect()->to('/rule'); // Redirect ke rule
             } else {
                 $session->setFlashdata('error', 'Password salah');
                 return redirect()->to('/login');
