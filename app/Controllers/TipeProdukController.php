@@ -2,6 +2,8 @@
 
 namespace App\Controllers;
 
+use App\Models\TipeProdukModel;
+
 class TipeProdukController extends BaseController
 {
     public function index()
@@ -13,6 +15,8 @@ class TipeProdukController extends BaseController
             return redirect()->to('/login')->with('error', 'Anda harus login terlebih dahulu.');
         }
 
-        return view('tipe-produk');
+        $model = new TipeProdukModel();
+        $data['product_types'] = $model->findAll(); // Ambil semua data dari tabel rules
+        return view('tipe-produk', $data); // Kirim data ke view
     }
 }
