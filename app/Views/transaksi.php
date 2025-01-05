@@ -97,8 +97,9 @@
             <a href="<?= base_url('rule') ?>">Rule</a>
             <a href="<?= base_url('tipe-produk') ?>">Tipe Produk</a>
             <a href="<?= base_url('transaksi') ?>" class="active">Transaksi</a>
-            <a href="<?= base_url('itemset') ?>">Itemset</a>
-            <a href="<?= base_url('asosiasi') ?>">Asosiasi</a>
+            <!-- <a href="<?= base_url('itemset') ?>">Itemset</a> -->
+            <!-- <a href="<?= base_url('asosiasi') ?>">Asosiasi</a> -->
+            <a href="<?= base_url('analisis-data') ?>">Analisis Data</a>
         </div>
         <a href="<?= site_url('/logout') ?>" class="logout">Logout</a>
     </div>

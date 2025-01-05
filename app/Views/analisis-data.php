@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Halaman Rule</title>
+    <title>Analisis Data</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -48,6 +48,20 @@
         .content {
             padding: 20px;
         }
+        .add-button {
+            margin-bottom: 20px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .add-button:hover {
+            background-color: #218838;
+        }
         table {
             width: 100%;
             border-collapse: collapse;
@@ -70,6 +84,9 @@
             cursor: pointer;
             text-align: center;
         }
+        .btn-danger {
+            background-color: #dc3545;
+        }
         .btn:hover {
             background-color: #0056b3;
         }
@@ -78,34 +95,40 @@
 <body> 
     <div class="navbar">
         <div class="navbar-menu">
-            <a href="<?= base_url('rule') ?>" class="active">Rule</a>
+            <a href="<?= base_url('rule') ?>" >Rule</a>
             <a href="<?= base_url('tipe-produk') ?>">Tipe Produk</a>
             <a href="<?= base_url('transaksi') ?>">Transaksi</a>
             <!-- <a href="<?= base_url('itemset') ?>">Itemset</a> -->
             <!-- <a href="<?= base_url('asosiasi') ?>">Asosiasi</a> -->
-            <a href="<?= base_url('analisis-data') ?>">Analisis Data</a>
+            <a href="<?= base_url('analisis-data') ?>" class="active">Analisis Data</a>
         </div>
         <a href="<?= site_url('/logout') ?>" class="logout">Logout</a>
     </div>
     <div class="content">
         <!-- Konten untuk halaman Rule -->
-        <h1>Rule</h1>
+        <h1>Analisis Data</h1>
+        <a href="<?= site_url('analisis-data/add') ?>" class="add-button">Tambah Analisis Data</a>
         <table>
             <thead>
                 <tr>
-                    <th>Nama</th>
-                    <th>Minimum Value</th>
+                    <th>ID</th>
+                    <th>Tanggal Awal</th>
+                    <th>Tanggal Akhir</th>
+                    <th>Deskripsi</th>
                     <th>Aksi</th>
                 </tr>
             </thead>
             <tbody>
-                <?php if (!empty($rules)): ?>
-                    <?php foreach ($rules as $rule): ?>
+                <?php if (!empty($analisis_data)): ?>
+                    <?php foreach ($analisis_data as $data): ?>
                         <tr>
-                            <td><?= esc($rule['name']) ?></td>
-                            <td><?= esc($rule['value']) ?>%</td>
+                            <td><?= esc($data['id']) ?></td>
+                            <td><?= esc($data['start_date']) ?></td>
+                            <td><?= esc($data['end_date']) ?></td>
+                            <td><?= esc($data['description']) ?></td>
                             <td>
-                                <button class="btn">Ubah</button>
+                                <button class="btn">Detail</button>
+                                <button class="btn btn-danger">Hapus</button>
                             </td>
                         </tr>
                     <?php endforeach; ?>
