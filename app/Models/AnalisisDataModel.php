@@ -6,7 +6,17 @@ use CodeIgniter\Model;
 
 class AnalisisDataModel extends Model
 {
-    protected $table = 'analisis_data'; // Nama tabel
-    protected $primaryKey = 'id'; // Primary key
-    protected $allowedFields = ['id','start_date','end_date','description']; // Kolom yang dapat diisi
+    protected $table = 'analisis_data';
+    protected $primaryKey = 'id';
+    protected $allowedFields = [
+        'start_date',
+        'end_date',
+        'description',
+        'minimum_support',
+        'minimum_confidence'
+    ];
+
+    protected $useTimestamps = true;
+    protected $createdField  = 'created_at';
+    protected $updatedField  = 'updated_at';
 }

@@ -3,6 +3,7 @@
 namespace App\Controllers;
 
 use App\Models\AnalisisDataModel;
+use App\Models\RuleModel;
 
 class AnalisisDataController extends BaseController
 {
@@ -17,38 +18,20 @@ class AnalisisDataController extends BaseController
 
         $model = new AnalisisDataModel();
         $data['analisis_data'] = $model->findAll(); // Ambil semua data dari tabel rules
+        session()->remove(['start_date', 'end_date', 'description']);
         return view('analisis-data', $data); // Kirim data ke view
     }
 
     public function add()
     {
-        return view('analisis-data-add'); // Menampilkan form tambah data
+        $session = session();
+        $data = [
+            'start_date'  => $session->get('start_date'),
+            'end_date'    => $session->get('end_date'),
+            'description' => $session->get('description')
+        ];
+        return view('analisis-data-add', $data); // Menampilkan form tambah data
     }
-
-    // public function save()
-    // {
-    //     $model = new AnalisisDataModel();
-
-    //     // Validasi input
-    //     $validation = $this->validate([
-    //         'start_date' => 'required|valid_date',
-    //         'end_date' => 'required|valid_date',
-    //         'description' => 'required|min_length[3]',
-    //     ]);
-
-    //     if (!$validation) {
-    //         return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
-    //     }
-
-    //     // Simpan data ke database
-    //     $model->save([
-    //         'start_date' => $this->request->getPost('start_date'),
-    //         'end_date' => $this->request->getPost('end_date'),
-    //         'description' => $this->request->getPost('description'),
-    //     ]);
-
-    //     return redirect()->to('/analisis-data')->with('success', 'Data berhasil ditambahkan.');
-    // }
 
     public function save()
     {
@@ -56,7 +39,42 @@ class AnalisisDataController extends BaseController
     $endDate = $this->request->getPost('end_date');
     $description = $this->request->getPost('description');
 
-    session()->set([
+    $ruleModel = new RuleModel();
+
+    $supportRule = $ruleModel->where('name', 'Minimum Support')->first();
+    $confidenceRule = $ruleModel->where('name', 'Minimum Confidence')->first();
+
+    $minSupport = $supportRule ? (int)$supportRule['value'] : 30;
+    $minConfidence = $confidenceRule ? (int)$confidenceRule['value'] : 60;
+
+    $session = session();
+    $model = new AnalisisDataModel();
+
+    // Cek apakah sudah pernah simpan (pakai session analisis_id)
+    if (!$session->get('analisis_id')) {
+        $data = [
+            'start_date' => $startDate,
+            'end_date' => $endDate,
+            'description' => $description,
+            'minimum_support' => $minSupport,
+            'minimum_confidence' => $minConfidence
+        ];
+    
+        $inserted = $model->insert($data); 
+    
+        if (!$inserted) {
+            log_message('error', 'Insert gagal: ' . json_encode($model->errors()));
+            dd($model->errors());
+        }
+        
+        $analisisId = $model->insertID(); 
+        $session->set('analisis_id', $analisisId);
+    }
+    
+    
+
+    // Simpan info input ke session (boleh overwrite)
+    $session->set([
         'start_date' => $startDate,
         'end_date' => $endDate,
         'description' => $description

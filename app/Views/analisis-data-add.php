@@ -164,18 +164,18 @@
         </div>
         <br>
         <h1>Main Info</h1>
-        <form action="<?= base_url('analisis-data/save') ?>" method="post">
+        <form action="<?= base_url('analisis-data/save'); ?>" method="post">
             <div class="form-group">
                 <label for="start_date">Tanggal Awal *</label>
-                <input type="date" id="start_date" name="start_date" value="<?= old('start_date') ?>" required>
+                <input type="date" name="start_date" value="<?= esc($start_date ?? '') ?>" required>
             </div>
             <div class="form-group">
                 <label for="end_date">Tanggal Akhir *</label>
-                <input type="date" id="end_date" name="end_date" value="<?= old('end_date') ?>" required>
+                <input type="date" name="end_date" value="<?= esc($end_date ?? '') ?>" required>
             </div>
             <div class="form-group">
                 <label for="description">Deskripsi *</label>
-                <textarea id="description" name="description" rows="4" required><?= old('description') ?></textarea>
+                <textarea name="description" required><?= esc($description ?? '') ?></textarea>
             </div>
             <div class="form-actions">
                 <a href="<?= base_url('analisis-data') ?>" class="btn btn-secondary">Kembali</a>
