@@ -25,28 +25,45 @@ class AnalisisDataController extends BaseController
         return view('analisis-data-add'); // Menampilkan form tambah data
     }
 
+    // public function save()
+    // {
+    //     $model = new AnalisisDataModel();
+
+    //     // Validasi input
+    //     $validation = $this->validate([
+    //         'start_date' => 'required|valid_date',
+    //         'end_date' => 'required|valid_date',
+    //         'description' => 'required|min_length[3]',
+    //     ]);
+
+    //     if (!$validation) {
+    //         return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
+    //     }
+
+    //     // Simpan data ke database
+    //     $model->save([
+    //         'start_date' => $this->request->getPost('start_date'),
+    //         'end_date' => $this->request->getPost('end_date'),
+    //         'description' => $this->request->getPost('description'),
+    //     ]);
+
+    //     return redirect()->to('/analisis-data')->with('success', 'Data berhasil ditambahkan.');
+    // }
+
     public function save()
     {
-        $model = new AnalisisDataModel();
+    $startDate = $this->request->getPost('start_date');
+    $endDate = $this->request->getPost('end_date');
+    $description = $this->request->getPost('description');
 
-        // Validasi input
-        $validation = $this->validate([
-            'start_date' => 'required|valid_date',
-            'end_date' => 'required|valid_date',
-            'description' => 'required|min_length[3]',
-        ]);
-
-        if (!$validation) {
-            return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
-        }
-
-        // Simpan data ke database
-        $model->save([
-            'start_date' => $this->request->getPost('start_date'),
-            'end_date' => $this->request->getPost('end_date'),
-            'description' => $this->request->getPost('description'),
-        ]);
-
-        return redirect()->to('/analisis-data')->with('success', 'Data berhasil ditambahkan.');
+    session()->set([
+        'start_date' => $startDate,
+        'end_date' => $endDate,
+        'description' => $description
+    ]);
+    
+    // Redirect ke halaman itemset 1
+    return redirect()->to('/analisis/itemset1');
     }
+
 }

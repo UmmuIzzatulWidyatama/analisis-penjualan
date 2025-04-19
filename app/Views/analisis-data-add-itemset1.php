@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tambah Analisis Data</title>
+    <title>Itemset 1</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -68,33 +68,18 @@
             height: 2px;
             background-color: #007bff;
         }
-        .form-title {
-            text-align: center;
-            margin-bottom: 30px;
-            font-size: 20px;
-            font-weight: bold;
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
         }
-        .form-group {
-            margin-bottom: 15px;
-            display: flex;
-            align-items: center;
-        }
-        .form-group label {
-            width: 200px;
-            margin-right: 10px;
-            font-weight: bold;
-        }
-        .form-group input,
-        .form-group textarea {
-            flex-grow: 1;
-            padding: 10px;
+        table th, table td {
             border: 1px solid #ddd;
-            border-radius: 4px;
-            font-size: 14px;
+            padding: 10px;
+            text-align: center;
         }
-        .form-group textarea {
-            resize: none;
-            height: 100px;
+        table th {
+            background-color: #f0f0f0;
         }
         .form-actions {
             display: flex;
@@ -118,7 +103,6 @@
         .btn:hover {
             opacity: 0.9;
         }
-        
     </style>
 </head>
 <body>
@@ -131,14 +115,14 @@
         </div>
     </div>
     <div class="container">
-    <div class="progress-bar">
+        <div class="progress-bar">
             <div class="progress-step">
-                <div class="progress-circle active">1</div>
+                <div class="progress-circle">1</div>
                 Main Info
             </div>
             <div class="progress-line"></div>
             <div class="progress-step">
-                <div class="progress-circle">2</div>
+                <div class="progress-circle active">2</div>
                 Itemset 1
             </div>
             <div class="progress-line"></div>
@@ -162,26 +146,33 @@
                 Kesimpulan
             </div>
         </div>
-        <br>
-        <h1>Main Info</h1>
-        <form action="<?= base_url('analisis-data/save') ?>" method="post">
-            <div class="form-group">
-                <label for="start_date">Tanggal Awal *</label>
-                <input type="date" id="start_date" name="start_date" value="<?= old('start_date') ?>" required>
-            </div>
-            <div class="form-group">
-                <label for="end_date">Tanggal Akhir *</label>
-                <input type="date" id="end_date" name="end_date" value="<?= old('end_date') ?>" required>
-            </div>
-            <div class="form-group">
-                <label for="description">Deskripsi *</label>
-                <textarea id="description" name="description" rows="4" required><?= old('description') ?></textarea>
-            </div>
-            <div class="form-actions">
-                <a href="<?= base_url('analisis-data') ?>" class="btn btn-secondary">Kembali</a>
-                <button type="submit" class="btn">Selanjutnya</button>
-            </div>
-        </form>
+
+        <h1>Itemset 1</h1>
+        <p>Minimum Support: <?= esc($minSupport) ?>%</p>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Itemset</th>
+                    <th>Frekuensi</th>
+                    <th>Support</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php foreach ($itemsets as $item): ?>
+                    <tr>
+                        <td><?= esc($item['item_name']) ?></td>
+                        <td><?= esc($item['frequency']) ?></td>
+                        <td><?= esc($item['support']) ?>%</td>
+                    </tr>
+                <?php endforeach; ?>
+            </tbody>
+        </table>
+
+        <div class="form-actions">
+            <a href="<?= base_url('analisis-data/add') ?>" class="btn btn-secondary">Kembali</a>
+            <a href="<?= base_url('analisis-data/itemset2') ?>" class="btn">Selanjutnya</a>
+        </div>
     </div>
 </body>
 </html>
