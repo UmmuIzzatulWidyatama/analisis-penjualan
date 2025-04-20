@@ -13,9 +13,9 @@ class AnalisisDataModel extends Model
         'end_date',
         'description',
         'minimum_support',
-        'minimum_confidence'
+        'minimum_confidence',
+        'transaction_count'
     ];
-
     protected $useTimestamps = true;
     protected $createdField  = 'created_at';
     protected $updatedField  = 'updated_at';

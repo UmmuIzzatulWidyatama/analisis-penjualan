@@ -35,53 +35,105 @@ class AnalisisDataController extends BaseController
 
     public function save()
     {
-    $startDate = $this->request->getPost('start_date');
-    $endDate = $this->request->getPost('end_date');
-    $description = $this->request->getPost('description');
+        $startDate = $this->request->getPost('start_date');
+        $endDate = $this->request->getPost('end_date');
+        $description = $this->request->getPost('description');
+        
+        // Hitung jumlah hari analisis
+        $start = new \DateTime($startDate);
+        $end = new \DateTime($endDate);
+        $interval = $start->diff($end);
+        $totalTransaksi = $interval->days + 1;
 
-    $ruleModel = new RuleModel();
+        $ruleModel = new RuleModel();
+        $supportRule = $ruleModel->where('name', 'Minimum Support')->first();
+        $confidenceRule = $ruleModel->where('name', 'Minimum Confidence')->first();
+        $minSupport = $supportRule ? (int)$supportRule['value'] : 10;
+        $minConfidence = $confidenceRule ? (int)$confidenceRule['value'] : 10;
 
-    $supportRule = $ruleModel->where('name', 'Minimum Support')->first();
-    $confidenceRule = $ruleModel->where('name', 'Minimum Confidence')->first();
+        $session = session();
+        $model = new AnalisisDataModel();
 
-    $minSupport = $supportRule ? (int)$supportRule['value'] : 30;
-    $minConfidence = $confidenceRule ? (int)$confidenceRule['value'] : 60;
+        // Cek apakah sudah pernah simpan (pakai session analisis_id)
+        if (!$session->get('analisis_id')) {
+            $data = [
+                'start_date' => $startDate,
+                'end_date' => $endDate,
+                'description' => $description,
+                'minimum_support' => $minSupport,
+                'minimum_confidence' => $minConfidence,
+                'transaction_count' => $totalTransaksi
+            ];
 
-    $session = session();
-    $model = new AnalisisDataModel();
+            $model->insert($data);
+            $errors = $model->errors();
 
-    // Cek apakah sudah pernah simpan (pakai session analisis_id)
-    if (!$session->get('analisis_id')) {
-        $data = [
+            if (!empty($errors)) {
+                dd([
+                    'insert_error' => $errors,
+                    'data' => $data
+                ]);
+            }
+
+            $analisisId = $model->insertID();
+            $session->set('analisis_id', $analisisId);
+        } else {
+            $analisisId = $session->get('analisis_id');
+            
+            // Pastikan ID yang disimpan sebelumnya masih valid di database
+            $existing = $model->find($analisisId);
+            if (!$existing) {
+                // Insert ulang karena data tidak ada
+                $analisisData = [
+                    'start_date' => $startDate,
+                    'end_date' => $endDate,
+                    'description' => $description,
+                    'minimum_support' => $minSupport,
+                    'minimum_confidence' => $minConfidence,
+                    'transaction_count' => $totalTransaksi
+                ];
+        
+                $model->insert($analisisData);
+                $analisisId = $model->insertID();
+                $session->set('analisis_id', $analisisId);
+            }
+        }
+
+        // Simpan info input ke session (boleh overwrite)
+        $session->set([
             'start_date' => $startDate,
             'end_date' => $endDate,
-            'description' => $description,
-            'minimum_support' => $minSupport,
-            'minimum_confidence' => $minConfidence
-        ];
-    
-        $inserted = $model->insert($data); 
-    
-        if (!$inserted) {
-            log_message('error', 'Insert gagal: ' . json_encode($model->errors()));
-            dd($model->errors());
+            'description' => $description
+        ]);
+
+        
+        $itemsetModel = new \App\Models\ItemsetModel();
+        $itemset1Model = new \App\Models\Itemset1Model();
+
+        $itemFrequencies = $itemsetModel->getItemFrequency($startDate, $endDate);
+
+        $itemsetData = [];
+
+        foreach ($itemFrequencies as $item) {
+            $supportPercent = round(($item['frequency'] / $totalTransaksi) * 100, 0);
+
+            $itemsetData[] = [
+                'analisis_data_id' => $analisisId,
+                'product_type_id' => $item['product_type_id'],
+                'support_count' => $item['frequency'],
+                'support_percent' => $supportPercent,
+                'is_below_threshold' => $supportPercent < $minSupport ? 1 : 0
+            ];
         }
         
-        $analisisId = $model->insertID(); 
-        $session->set('analisis_id', $analisisId);
-    }
-    
-    
+        // Hapus data sebelumnya agar tidak duplikat
+        $itemset1Model->where('analisis_data_id', $analisisId)->delete();
+        
+        if (!empty($itemsetData)) {
+            $itemset1Model->insertBatch($itemsetData);
+        }
 
-    // Simpan info input ke session (boleh overwrite)
-    $session->set([
-        'start_date' => $startDate,
-        'end_date' => $endDate,
-        'description' => $description
-    ]);
-    
-    // Redirect ke halaman itemset 1
-    return redirect()->to('/analisis/itemset1');
+        // Redirect ke halaman itemset 1
+        return redirect()->to('/analisis/itemset1');
     }
-
 }

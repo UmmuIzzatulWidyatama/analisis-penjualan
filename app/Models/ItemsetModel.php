@@ -7,6 +7,18 @@ use CodeIgniter\Model;
 class ItemsetModel extends Model
 {
 
+    public function getItemFrequency($startDate, $endDate)
+    {
+        return $this->db->table('transaction_details td')
+            ->select('td.product_type_id, COUNT(*) as frequency')
+            ->join('transactions t', 't.id = td.transaction_id')
+            ->where('t.sale_date >=', $startDate)
+            ->where('t.sale_date <=', $endDate)
+            ->groupBy('td.product_type_id')
+            ->get()
+            ->getResultArray();
+    }
+
     public function getItemset1()
     {
         $builder = $this->db->table('transaction_details td');
@@ -15,7 +27,7 @@ class ItemsetModel extends Model
         $builder->join('product_types pt', 'pt.id = td.product_type_id');
         $builder->join(
             '(SELECT COUNT(DISTINCT transaction_id) AS total_transactions FROM transaction_details) total',
-            '1=1',
+            '1 = 1',
             'CROSS'
         );
 
@@ -25,7 +37,6 @@ class ItemsetModel extends Model
         return $builder->get()->getResultArray();
         
     }
-
 
     public function getMinimumSupport()
     {

@@ -18,6 +18,10 @@
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
             justify-content: space-between;
         }
+        .navbar-menu {
+            display: flex;
+            gap: 15px;
+        }
         .navbar-menu a {
             text-decoration: none;
             color: #333;

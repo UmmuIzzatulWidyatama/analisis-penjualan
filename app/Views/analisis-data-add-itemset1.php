@@ -18,6 +18,10 @@
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
             justify-content: space-between;
         }
+        .navbar-menu {
+            display: flex;
+            gap: 15px;
+        }
         .navbar-menu a {
             text-decoration: none;
             color: #333;
@@ -160,10 +164,10 @@
             </thead>
             <tbody>
                 <?php foreach ($itemsets as $item): ?>
-                    <tr>
+                    <tr style="<?= $item['support_percent'] < $minSupport ? 'background-color: #f8d7da;' : '' ?>">
                         <td><?= esc($item['item_name']) ?></td>
-                        <td><?= esc($item['frequency']) ?></td>
-                        <td><?= esc($item['support']) ?>%</td>
+                        <td><?= esc($item['support_count']) ?></td>
+                        <td><?= esc($item['support_percent']) ?>%</td>
                     </tr>
                 <?php endforeach; ?>
             </tbody>
