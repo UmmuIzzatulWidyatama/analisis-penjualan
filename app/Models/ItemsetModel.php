@@ -51,4 +51,26 @@ class ItemsetModel extends Model
         return $result['count'] ?? 0;
     }
 
+    public function countTransactionWith3Items($productA, $productB, $productC, $startDate, $endDate)
+    {
+        $db = \Config\Database::connect();
+
+        $query = $db->query("
+            SELECT COUNT(DISTINCT td1.transaction_id) AS count
+            FROM transaction_details td1
+            JOIN transaction_details td2 ON td1.transaction_id = td2.transaction_id
+            JOIN transaction_details td3 ON td1.transaction_id = td3.transaction_id
+            JOIN transactions t ON td1.transaction_id = t.id
+            WHERE td1.product_type_id = ? 
+            AND td2.product_type_id = ?
+            AND td3.product_type_id = ?
+            AND t.sale_date BETWEEN ? AND ?
+        ", [$productA, $productB, $productC, $startDate, $endDate]);
+
+        $result = $query->getRowArray();
+        return $result['count'] ?? 0;
+    }
+
+
+
 }

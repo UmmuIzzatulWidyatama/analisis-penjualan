@@ -4,7 +4,6 @@ namespace App\Controllers;
 
 use App\Models\AnalisisDataModel;
 use App\Models\RuleModel;
-use App\Models\ItemsetModel;
 
 class AnalisisDataController extends BaseController
 {
@@ -19,7 +18,7 @@ class AnalisisDataController extends BaseController
 
         $model = new AnalisisDataModel();
         $data['analisis_data'] = $model->findAll(); // Ambil semua data dari tabel rules
-        session()->remove(['start_date', 'end_date', 'description']);
+        session()->remove(['analisis_id','start_date', 'end_date', 'description']);
         return view('analisis-data', $data); // Kirim data ke view
     }
 
@@ -110,6 +109,8 @@ class AnalisisDataController extends BaseController
         
         $itemsetModel = new \App\Models\ItemsetModel();
         $itemset1Model = new \App\Models\Itemset1Model();
+        $itemset2Model = new \App\Models\Itemset2Model();
+        $itemset3Model = new \App\Models\Itemset3Model();
 
         $itemFrequencies = $itemsetModel->getItemFrequency($startDate, $endDate);
 
@@ -126,11 +127,11 @@ class AnalisisDataController extends BaseController
                 'is_below_threshold' => $supportPercent < $minSupport ? 1 : 0
             ];
         }
-        $itemset2Model = new \App\Models\Itemset2Model();
-
+        
         // Hapus data sebelumnya agar tidak duplikat
         $itemset1Model->where('analisis_data_id', $analisisId)->delete();
         $itemset2Model->where('analisis_data_id', $analisisId)->delete();
+        $itemset3Model->where('analisis_data_id', $analisisId)->delete();
         
         if (!empty($itemsetData)) {
             $itemset1Model->insertBatch($itemsetData);
@@ -170,6 +171,62 @@ class AnalisisDataController extends BaseController
 
         if (!empty($itemset2Data)) {
             $itemset2Model->insertBatch($itemset2Data);
+        }
+        
+        // Ambil itemset 2 yang lolos minimum support
+        $filteredItemset2 = array_filter($itemset2Data, function ($item) use ($minSupport) {
+            return $item['support_percent'] >= $minSupport;
+        });
+
+        $validItemIds = [];
+
+        foreach ($filteredItemset2 as $itemset2) {
+            $validItemIds[] = $itemset2['product_type_id_1'];
+            $validItemIds[] = $itemset2['product_type_id_2'];
+        }
+
+        $validItemIds = array_unique($validItemIds);
+
+        // Cek apakah cukup item untuk kombinasi 3
+        if (count($validItemIds) < 3) {
+            // Bisa pakai log, flashdata, atau dd() untuk info dev
+            session()->setFlashdata('info', 'Tidak mungkin buat kombinasi 3, skip proses itemset 3.');
+
+            // Skip proses itemset 3, lanjut redirect
+            return redirect()->to('/analisis-data/itemset1');
+        }
+
+        // Buat kombinasi 3 item dari filtered itemset 1
+        $itemset3Combinations = [];
+        $validItemIds = array_values($validItemIds); // reset index array
+
+        for ($i = 0; $i < count($validItemIds); $i++) {
+            for ($j = $i + 1; $j < count($validItemIds); $j++) {
+                for ($k = $j + 1; $k < count($validItemIds); $k++) {
+                    $itemset3Combinations[] = [$validItemIds[$i], $validItemIds[$j], $validItemIds[$k]];
+                }
+            }
+        }
+
+        // Hitung frekuensi kombinasi itemset 3
+        $itemset3Data = [];
+        foreach ($itemset3Combinations as $trio) {
+            $count = $itemsetModel->countTransactionWith3Items($trio[0], $trio[1], $trio[2], $startDate, $endDate);
+            $supportPercent = round($count / $totalTransaksi * 100, 2);
+
+            $itemset3Data[] = [
+                'analisis_data_id' => $analisisId,
+                'product_type_id_1' => $trio[0],
+                'product_type_id_2' => $trio[1],
+                'product_type_id_3' => $trio[2],
+                'support_count' => $count,
+                'support_percent' => $supportPercent,
+                'is_below_threshold' => $supportPercent < $minSupport ? 1 : 0
+            ];
+        }
+
+        if (!empty($itemset3Data)) {
+            $itemset3Model->insertBatch($itemset3Data);
         }
         
          // Redirect ke halaman itemset 1
