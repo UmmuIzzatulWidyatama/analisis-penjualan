@@ -280,6 +280,64 @@ class AnalisisDataController extends BaseController
             ];
         }
 
+        // Ambil itemset 3 yang lolos support
+        $filteredItemset3 = array_filter($itemset3Data, function ($item) use ($minSupport) {
+            return $item['support_percent'] >= $minSupport;
+        });
+
+        foreach ($filteredItemset3 as $itemset3) {
+            // Support A∪B∪C
+            $supportABC = $itemset3['support_percent'];
+
+            // Kombinasi aturan dari A, B, C
+            $combinations = [
+                ['from' => [$itemset3['product_type_id_1'], $itemset3['product_type_id_2']], 'to' => $itemset3['product_type_id_3']],
+                ['from' => [$itemset3['product_type_id_1'], $itemset3['product_type_id_3']], 'to' => $itemset3['product_type_id_2']],
+                ['from' => [$itemset3['product_type_id_2'], $itemset3['product_type_id_3']], 'to' => $itemset3['product_type_id_1']],
+            ];
+
+            foreach ($combinations as $combo) {
+                // Cari support(A∪B) dari itemset2
+                $supportAB = 0;
+                foreach ($itemset2Data as $item2) {
+                    $ids = [$item2['product_type_id_1'], $item2['product_type_id_2']];
+                    sort($ids);
+                    $fromIds = $combo['from'];
+                    sort($fromIds);
+
+                    if ($ids === $fromIds) {
+                        $supportAB = $item2['support_percent'];
+                        break;
+                    }
+                }
+
+                $confidence = $supportAB > 0 ? round($supportABC / $supportAB * 100, 2) : 0;
+
+                $associationData[] = [
+                    'analisis_data_id' => $analisisId,
+                    'from_item' => $combo['from'][0],
+                    'from_item_2' => $combo['from'][1],
+                    'to_item' => $combo['to'],
+                    'support_percent' => $supportABC,
+                    'confidence_percent' => $confidence,
+                    'is_below_confidence_threshold' => $confidence < $minConfidence ? 1 : 0
+                ];
+            }
+        }
+
+        foreach ($associationData as &$data) {
+            if (!isset($data['from_item_2'])) {
+                $data['from_item_2'] = null;
+            }
+        }
+        unset($data); // aman dari referensi
+
+        $associationData = array_filter($associationData, function($value) {
+            return !empty($value['from_item']) && !empty($value['to_item']);
+        });
+        
+
+        // Insert semua aturan asosiasi (2 dan 3 itemset)
         if (!empty($associationData)) {
             $associationModel->insertBatch($associationData);
         }
