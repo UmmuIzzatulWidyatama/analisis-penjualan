@@ -42,7 +42,7 @@
             color: #333;
             font-size: 14px;
         }
-        .navbar .logout:hover {
+        .navbar .logout:hover { 
             color: #d9534f;
         }
         .content {

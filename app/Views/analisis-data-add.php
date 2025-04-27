@@ -16,6 +16,7 @@
             background-color: #fff;
             padding: 10px 20px;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            align-items: center;
             justify-content: space-between;
         }
         .navbar-menu {
@@ -25,12 +26,27 @@
         .navbar-menu a {
             text-decoration: none;
             color: #333;
+            font-size: 14px;
             padding: 8px 12px;
             border-radius: 4px;
         }
         .navbar-menu a.active {
             background-color: #007bff;
             color: white;
+        }
+        .navbar-menu a:hover {
+            background-color: #e0e0e0;
+        }
+        .navbar .logout {
+            text-decoration: none;
+            color: #333;
+            font-size: 14px;
+        }
+        .navbar .logout:hover { 
+            color: #d9534f;
+        }
+        .content {
+            padding: 20px;
         }
         .container {
             max-width: 900px;
@@ -133,6 +149,7 @@
             <a href="<?= base_url('transaksi') ?>">Transaksi</a>
             <a href="<?= base_url('analisis-data') ?>" class="active">Analisis Data</a>
         </div>
+        <a href="<?= site_url('/logout') ?>" class="logout">Logout</a>
     </div>
     <div class="container">
     <div class="progress-bar">
