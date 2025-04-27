@@ -111,6 +111,7 @@ class AnalisisDataController extends BaseController
         $itemset1Model = new \App\Models\Itemset1Model();
         $itemset2Model = new \App\Models\Itemset2Model();
         $itemset3Model = new \App\Models\Itemset3Model();
+        $associationModel = new \App\Models\AssociationRuleModel();
 
         $itemFrequencies = $itemsetModel->getItemFrequency($startDate, $endDate);
 
@@ -132,6 +133,7 @@ class AnalisisDataController extends BaseController
         $itemset1Model->where('analisis_data_id', $analisisId)->delete();
         $itemset2Model->where('analisis_data_id', $analisisId)->delete();
         $itemset3Model->where('analisis_data_id', $analisisId)->delete();
+        $associationModel->where('analisis_data_id', $analisisId)->delete();
         
         if (!empty($itemsetData)) {
             $itemset1Model->insertBatch($itemsetData);
@@ -228,7 +230,60 @@ class AnalisisDataController extends BaseController
         if (!empty($itemset3Data)) {
             $itemset3Model->insertBatch($itemset3Data);
         }
-        
+
+        //Perhitungan Asosiasi Itemset 2
+        $associationData = [];
+
+        foreach ($filteredItemset2 as $itemset2) {
+            // Support A U B
+            $supportAB = $itemset2['support_percent'];
+
+            // Ambil support A dari itemset1
+            $supportA = 0;
+            foreach ($itemsetData as $item1) {
+                if ($item1['product_type_id'] == $itemset2['product_type_id_1']) {
+                    $supportA = $item1['support_percent'];
+                    break;
+                }
+            }
+
+            // Confidence A -> B
+            $confidenceAB = $supportA > 0 ? round($supportAB / $supportA * 100, 2) : 0;
+
+            $associationData[] = [
+                'analisis_data_id' => $analisisId,
+                'from_item' => $itemset2['product_type_id_1'],
+                'to_item' => $itemset2['product_type_id_2'],
+                'support_percent' => $supportAB,
+                'confidence_percent' => $confidenceAB,
+                'is_below_confidence_threshold' => $confidenceAB < $minConfidence ? 1 : 0
+            ];
+
+            // Confidence B -> A
+            $supportB = 0;
+            foreach ($itemsetData as $item1) {
+                if ($item1['product_type_id'] == $itemset2['product_type_id_2']) {
+                    $supportB = $item1['support_percent'];
+                    break;
+                }
+            }
+
+            $confidenceBA = $supportB > 0 ? round($supportAB / $supportB * 100, 2) : 0;
+
+            $associationData[] = [
+                'analisis_data_id' => $analisisId,
+                'from_item' => $itemset2['product_type_id_2'],
+                'to_item' => $itemset2['product_type_id_1'],
+                'support_percent' => $supportAB,
+                'confidence_percent' => $confidenceBA,
+                'is_below_confidence_threshold' => $confidenceBA < $minConfidence ? 1 : 0
+            ];
+        }
+
+        if (!empty($associationData)) {
+            $associationModel->insertBatch($associationData);
+        }
+
          // Redirect ke halaman itemset 1
          return redirect()->to('/analisis-data/itemset1');
 

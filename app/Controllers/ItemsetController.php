@@ -7,6 +7,8 @@ use App\Models\ItemsetModel;
 use App\Models\Itemset1Model;
 use App\Models\Itemset2Model;
 use App\Models\Itemset3Model;
+use App\Models\AssociationRuleModel;
+use App\Models\TipeProdukModel;
 
 class ItemsetController extends BaseController
 {
@@ -118,6 +120,60 @@ class ItemsetController extends BaseController
             'itemsets' => $itemsets,
             'minSupport' => $minSupport
         ]);
+    }
+
+    public function asosiasi()
+    {
+        $session = session();
+        $analisisId = $session->get('analisis_id');
+
+        if (!$analisisId) {
+            return redirect()->to('/analisis-data')->with('error', 'Data analisis tidak ditemukan.');
+        }
+
+        $analisisModel = new AnalisisDataModel();
+        $associationModel = new AssociationRuleModel();
+        $rules = $associationModel->where('analisis_data_id', $analisisId)->findAll();
+        
+        $analisis = $analisisModel->find($analisisId);
+        if (!$analisis) {
+            return redirect()->to('/analisis/itemset1')->with('error', 'Data analisis tidak valid.');
+        }
+
+        $minSupport = $analisis['minimum_support'];
+        $minConfidence = $analisis['minimum_confidence'];
+        
+        // Ambil nama produk
+        $productModel = new TipeProdukModel(); // Model tipe produk
+        $productNames = $productModel->findAll(); // id => name mapping
+        $nameMap = [];
+        foreach ($productNames as $prod) {
+            $nameMap[$prod['id']] = $prod['name'];
+        }
+
+        $rules2 = [];
+        $rules3 = [];
+
+        foreach ($rules as $rule) {
+            if ($rule['from_item_2'] == null) {
+                $rule['from_item_name'] = $nameMap[$rule['from_item']] ?? $rule['from_item'];
+                $rule['to_item_name'] = $nameMap[$rule['to_item']] ?? $rule['to_item'];
+                $rules2[] = $rule;
+            } else {
+                $rule['from_item_name'] = $nameMap[$rule['from_item']] ?? $rule['from_item'];
+                $rule['from_item_2_name'] = $nameMap[$rule['from_item_2']] ?? $rule['from_item_2'];
+                $rule['to_item_name'] = $nameMap[$rule['to_item']] ?? $rule['to_item'];
+                $rules3[] = $rule;
+            }
+        }
+
+        return view('analisis-data-add-asosiasi', [
+            'minSupport' => $minSupport,
+            'minConfidence' => $minConfidence,
+            'rules2' => $rules2,
+            'rules3' => $rules3
+        ]);
+        
     }
 
 }

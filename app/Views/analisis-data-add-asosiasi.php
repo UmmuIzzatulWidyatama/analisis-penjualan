@@ -144,12 +144,12 @@
             </div>
             <div class="progress-line"></div>
             <div class="progress-step">
-                <div class="progress-circle active">4</div>
+                <div class="progress-circle">4</div>
                 Itemset 3
             </div>
             <div class="progress-line"></div>
             <div class="progress-step">
-                <div class="progress-circle">5</div>
+                <div class="progress-circle active">5</div>
                 Asosiasi
             </div>
             <div class="progress-line"></div>
@@ -159,29 +159,37 @@
             </div>
         </div>
 
-        <?php if(session()->getFlashdata('info')): ?>
-            <div class="alert-info">
-                <?= session()->getFlashdata('info') ?>
-            </div>
-        <?php endif; ?> 
-
-        <h1>Itemset 3</h1>
-        <p>Minimum Support: <?= esc($minSupport) ?>%</p>
-
+        <h1>Asosiasi 2 Item</h1>
         <table>
             <thead>
                 <tr>
-                    <th>Itemset</th>
-                    <th>Frekuensi</th>
-                    <th>Support</th>
+                    <th>Rule</th>
+                    <th>Confidence</th>
                 </tr>
             </thead>
             <tbody>
-                <?php foreach ($itemsets as $item): ?>
-                    <tr style="<?= $item['support_percent'] < $minSupport ? 'background-color: #f8d7da;' : '' ?>">
-                        <td><?= esc($item['item_name']) ?></td>
-                        <td><?= esc($item['support_count']) ?></td>
-                        <td><?= esc($item['support_percent']) ?>%</td>
+                <?php foreach ($rules2 as $rule): ?>
+                    <tr style="<?= $rule['is_below_confidence_threshold'] ? 'background-color: #f8d7da;' : '' ?>">
+                        <td><?= esc($rule['from_item_name']) ?> → <?= esc($rule['to_item_name']) ?></td>
+                        <td><?= esc($rule['confidence_percent']) ?>%</td>
+                    </tr>
+                <?php endforeach; ?>
+            </tbody>
+        </table>
+
+        <h1>Asosiasi 3 Item</h1>
+        <table>
+            <thead>
+                <tr>
+                    <th>Rule</th>
+                    <th>Confidence</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php foreach ($rules3 as $rule): ?>
+                    <tr style="<?= $rule['is_below_confidence_threshold'] ? 'background-color: #f8d7da;' : '' ?>">
+                        <td><?= esc($rule['from_item_name']) ?> & <?= esc($rule['from_item_2_name']) ?> → <?= esc($rule['to_item_name']) ?></td>
+                        <td><?= esc($rule['confidence_percent']) ?>%</td>
                     </tr>
                 <?php endforeach; ?>
             </tbody>
@@ -189,8 +197,9 @@
 
         <div class="form-actions">
             <a href="<?= base_url('analisis-data/add') ?>" class="btn btn-secondary">Kembali</a>
-            <a href="<?= base_url('analisis-data/asosiasi') ?>" class="btn">Selanjutnya</a>
+            <a href="<?= base_url('analisis-data/kesimpulan') ?>" class="btn">Selanjutnya</a>
         </div>
+        
     </div>
 </body>
 </html>
