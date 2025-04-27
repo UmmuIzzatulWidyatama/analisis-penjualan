@@ -18,7 +18,7 @@ $routes->get('/analisis-data/itemset1', 'ItemsetController::itemset1'); // items
 $routes->get('/analisis-data/itemset2', 'ItemsetController::itemset2'); // itemset 2
 $routes->get('/analisis-data/itemset3', 'ItemsetController::itemset3'); // itemset 2
 $routes->get('/analisis-data/asosiasi', 'ItemsetController::asosiasi'); //asosiasi
-$routes->get('/analisis-data/kesimpulan', 'ItemsetController::kesimpulan'); //kesimpulan
+$routes->get('/analisis-data/kesimpulan', 'ItemsetController::kesimpulan'); //kesimpulan 
 
 
 
