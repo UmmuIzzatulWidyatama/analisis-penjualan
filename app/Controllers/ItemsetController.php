@@ -5,6 +5,7 @@ namespace App\Controllers;
 use App\Models\AnalisisDataModel;
 use App\Models\ItemsetModel;
 use App\Models\Itemset1Model;
+use App\Models\Itemset2Model;
 
 class ItemsetController extends BaseController
 {
@@ -49,4 +50,39 @@ class ItemsetController extends BaseController
         $data['minSupport'] = $analisis['minimum_support'];
 
         return view('analisis-data-add-itemset1', $data);
-    }}
+    }
+
+    public function itemset2()
+    {
+        $session = session();
+        $analisisId = $session->get('analisis_id');
+
+        if (!$analisisId) {
+            return redirect()->to('/analisis-data')->with('error', 'Data analisis tidak ditemukan.');
+        }
+
+        $analisisModel = new AnalisisDataModel();
+        $itemset2Model = new Itemset2Model();
+
+        $analisis = $analisisModel->find($analisisId);
+        if (!$analisis) {
+            return redirect()->to('/analisis/itemset1')->with('error', 'Data analisis tidak valid.');
+        }
+
+        $minSupport = $analisis['minimum_support'];
+        $itemsets = $itemset2Model
+            ->select("CONCAT(pt1.name, ' & ', pt2.name) as item_name, 
+                        itemset_2.support_count, 
+                        itemset_2.support_percent")
+            ->join('product_types pt1', 'pt1.id = itemset_2.product_type_id_1')
+            ->join('product_types pt2', 'pt2.id = itemset_2.product_type_id_2')
+            ->where('itemset_2.analisis_data_id', $analisisId)
+            ->findAll();
+
+        return view('analisis-data-add-itemset2', [
+            'itemsets' => $itemsets,
+            'minSupport' => $minSupport
+        ]);
+    }
+
+}

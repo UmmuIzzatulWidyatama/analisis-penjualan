@@ -6,38 +6,6 @@ use CodeIgniter\Model;
 
 class ItemsetModel extends Model
 {
-
-    public function getItemFrequency($startDate, $endDate)
-    {
-        return $this->db->table('transaction_details td')
-            ->select('td.product_type_id, COUNT(*) as frequency')
-            ->join('transactions t', 't.id = td.transaction_id')
-            ->where('t.sale_date >=', $startDate)
-            ->where('t.sale_date <=', $endDate)
-            ->groupBy('td.product_type_id')
-            ->get()
-            ->getResultArray();
-    }
-
-    public function getItemset1()
-    {
-        $builder = $this->db->table('transaction_details td');
-        $builder->select('pt.name AS item_name, COUNT(td.product_type_id) AS frequency, 
-                          ROUND(COUNT(td.product_type_id) * 100.0 / total.total_transactions, 2) AS support', false);
-        $builder->join('product_types pt', 'pt.id = td.product_type_id');
-        $builder->join(
-            '(SELECT COUNT(DISTINCT transaction_id) AS total_transactions FROM transaction_details) total',
-            '1 = 1',
-            'CROSS'
-        );
-
-        $builder->groupBy('pt.name, total.total_transactions');
-        $builder->orderBy('frequency', 'DESC');
-
-        return $builder->get()->getResultArray();
-        
-    }
-
     public function getMinimumSupport()
     {
         $row = $this->db->table('rules')
@@ -53,5 +21,34 @@ class ItemsetModel extends Model
         return $row['value'];
     }
 
+    public function getItemFrequency($startDate, $endDate)
+    {
+        return $this->db->table('transaction_details td')
+            ->select('td.product_type_id, COUNT(*) as frequency')
+            ->join('transactions t', 't.id = td.transaction_id')
+            ->where('t.sale_date >=', $startDate)
+            ->where('t.sale_date <=', $endDate)
+            ->groupBy('td.product_type_id')
+            ->get()
+            ->getResultArray();
+    }
+
+    public function countTransactionWithItems($productA, $productB, $startDate, $endDate)
+    {
+        $db = \Config\Database::connect();
+
+        $query = $db->query("
+            SELECT COUNT(DISTINCT td1.transaction_id) AS count
+            FROM transaction_details td1
+            JOIN transaction_details td2 ON td1.transaction_id = td2.transaction_id
+            JOIN transactions t ON td1.transaction_id = t.id
+            WHERE td1.product_type_id = ? 
+            AND td2.product_type_id = ?
+            AND t.sale_date BETWEEN ? AND ?
+        ", [$productA, $productB, $startDate, $endDate]);
+
+        $result = $query->getRowArray();
+        return $result['count'] ?? 0;
+    }
 
 }

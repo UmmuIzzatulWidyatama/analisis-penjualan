@@ -4,6 +4,7 @@ namespace App\Controllers;
 
 use App\Models\AnalisisDataModel;
 use App\Models\RuleModel;
+use App\Models\ItemsetModel;
 
 class AnalisisDataController extends BaseController
 {
@@ -125,15 +126,54 @@ class AnalisisDataController extends BaseController
                 'is_below_threshold' => $supportPercent < $minSupport ? 1 : 0
             ];
         }
-        
+        $itemset2Model = new \App\Models\Itemset2Model();
+
         // Hapus data sebelumnya agar tidak duplikat
         $itemset1Model->where('analisis_data_id', $analisisId)->delete();
+        $itemset2Model->where('analisis_data_id', $analisisId)->delete();
         
         if (!empty($itemsetData)) {
             $itemset1Model->insertBatch($itemsetData);
         }
 
-        // Redirect ke halaman itemset 1
-        return redirect()->to('/analisis/itemset1');
+        // Ambil semua itemset 1 yang lolos minimum support
+        $filteredItemset1 = array_filter($itemFrequencies, function ($item) use ($minSupport, $totalTransaksi) {
+            $support = ($item['frequency'] / $totalTransaksi) * 100;
+            return $support >= $minSupport;
+        });
+        
+        // Ambil kombinasi 2 item dari itemset1 yang lolos
+        $itemCombinations = [];
+        $itemIds = array_column($filteredItemset1, 'product_type_id');
+        
+        for ($i = 0; $i < count($itemIds); $i++) {
+            for ($j = $i + 1; $j < count($itemIds); $j++) {
+                $itemCombinations[] = [$itemIds[$i], $itemIds[$j]];
+            }
+        }
+        
+        // Hitung frekuensi kombinasi item 
+        $itemset2Data = [];
+        foreach ($itemCombinations as $pair) {
+            $count = $itemsetModel->countTransactionWithItems($pair[0], $pair[1], $startDate, $endDate);
+            $supportPercent = round($count / $totalTransaksi * 100, 2);
+        
+            $itemset2Data[] = [
+                'analisis_data_id' => $analisisId,
+                'product_type_id_1' => $pair[0],
+                'product_type_id_2' => $pair[1],
+                'support_count' => $count,
+                'support_percent' => $supportPercent,
+                'is_below_threshold' => $supportPercent < $minSupport ? 1 : 0
+            ];
+        }
+
+        if (!empty($itemset2Data)) {
+            $itemset2Model->insertBatch($itemset2Data);
+        }
+        
+         // Redirect ke halaman itemset 1
+         return redirect()->to('/analisis-data/itemset1');
+
     }
 }
