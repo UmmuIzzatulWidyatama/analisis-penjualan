@@ -12,6 +12,9 @@ $routes->get('/rule', 'RuleController::index');
 $routes->get('/rule/detail/(:num)', 'RuleController::detail/$1'); // show form edit
 $routes->post('/rule/update/(:num)', 'RuleController::update/$1'); // proses update
 $routes->get('/tipe-produk', 'TipeProdukController::index');
+$routes->get('/tipe-produk/add', 'TipeProdukController::add'); //show form add produk
+$routes->post('/tipe-produk/save', 'TipeProdukController::save'); // simpan data produk
+$routes->get('/tipe-produk/delete/(:num)', 'TipeProdukController::delete/$1');
 $routes->get('/transaksi', 'TransaksiController::index');
 $routes->get('analisis-data', 'AnalisisDataController::index'); //list page analisis info
 $routes->get('analisis-data/add', 'AnalisisDataController::add'); //analisis information

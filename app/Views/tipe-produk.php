@@ -90,6 +90,18 @@
         .btn:hover {
             background-color: #0056b3;
         }
+        .btn-delete {
+            background-color: #ef4444;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 4px;
+            text-decoration: none;
+            font-size: 13px;
+        }
+        .btn-delete:hover {
+            background-color: #dc2626;
+        }
+        
     </style>
 </head>
 <body>
@@ -124,7 +136,7 @@
                             <td><?= esc($product['name']) ?></td>
                             <td>
                                 <button class="btn">Ubah</button>
-                                <button class="btn btn-danger">Hapus</button>
+                                <a href="<?= site_url('/tipe-produk/delete/' . $product['id']) ?>" class="btn-delete" onclick="return confirm('Yakin ingin menghapus produk ini?');">Hapus</a>
                             </td>
                         </tr>
                     <?php endforeach; ?>
