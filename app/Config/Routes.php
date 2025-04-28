@@ -9,6 +9,8 @@ $routes->get('/login', 'AuthController::login');
 $routes->post('/authenticate', 'AuthController::authenticate');
 $routes->get('/logout', 'AuthController::logout');
 $routes->get('/rule', 'RuleController::index');
+$routes->get('/rule/detail/(:num)', 'RuleController::detail/$1'); // show form edit
+$routes->post('/rule/update/(:num)', 'RuleController::update/$1'); // proses update
 $routes->get('/tipe-produk', 'TipeProdukController::index');
 $routes->get('/transaksi', 'TransaksiController::index');
 $routes->get('analisis-data', 'AnalisisDataController::index'); //list page analisis info

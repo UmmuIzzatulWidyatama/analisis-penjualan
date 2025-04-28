@@ -68,7 +68,8 @@
             padding: 5px 10px;
             border-radius: 4px;
             cursor: pointer;
-            text-align: center;
+            text-align: center; 
+            text-decoration: none;
         }
         .btn:hover {
             background-color: #0056b3;
@@ -105,7 +106,7 @@
                             <td><?= esc($rule['name']) ?></td>
                             <td><?= esc($rule['value']) ?>%</td>
                             <td>
-                                <button class="btn">Ubah</button>
+                                <a href="<?= site_url('/rule/detail/' . $rule['id']) ?>" class="btn">Ubah</a>
                             </td>
                         </tr>
                     <?php endforeach; ?>
