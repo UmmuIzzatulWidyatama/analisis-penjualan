@@ -43,6 +43,12 @@ class TipeProdukController extends BaseController
             return redirect()->back()->withInput()->with('error', 'Nama Produk wajib diisi.');
         }
 
+         // Validasi nama unik
+        $existing = $model->where('name', $name)->first();
+        if ($existing) {
+            return redirect()->back()->withInput()->with('error', 'Nama Produk sudah ada, gunakan nama lain.');
+        }
+
         $model->insert([
             'name' => $name
         ]);
@@ -64,5 +70,39 @@ class TipeProdukController extends BaseController
 
         return redirect()->to('/tipe-produk')->with('success', 'Produk berhasil dihapus.');
     }
+
+    public function edit($id)
+    {
+        $model = new \App\Models\TipeProdukModel();
+        $product = $model->find($id);
+
+        if (!$product) {
+            return redirect()->to('/tipe-produk')->with('error', 'Produk tidak ditemukan.');
+        }
+
+        return view('edit-tipe-produk', ['product' => $product]);
+    }
+
+    public function update($id)
+    {
+        $model = new \App\Models\TipeProdukModel();
+
+        $name = $this->request->getPost('name');
+
+        if (empty($name)) {
+            return redirect()->back()->withInput()->with('error', 'Nama Produk wajib diisi.');
+        }
+
+        // Validasi nama unik kecuali data yang sedang diedit
+        $existing = $model->where('name', $name)->where('id !=', $id)->first();
+        if ($existing) {
+            return redirect()->back()->withInput()->with('error', 'Nama Produk sudah ada, gunakan nama lain.');
+        }
+
+        $model->update($id, ['name' => $name]);
+
+        return redirect()->to('/tipe-produk')->with('success', 'Produk berhasil diperbarui.');
+    }
+
 
 }

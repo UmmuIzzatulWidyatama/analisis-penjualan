@@ -101,6 +101,17 @@
         .btn-delete:hover {
             background-color: #dc2626;
         }
+        .btn-edit {
+            background-color: #f59e0b;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 4px;
+            text-decoration: none;
+            font-size: 13px;
+        }
+        .btn-edit:hover {
+            background-color: #d97706;
+        }
         
     </style>
 </head>
@@ -135,7 +146,7 @@
                             <td><?= esc($product['id']) ?></td>
                             <td><?= esc($product['name']) ?></td>
                             <td>
-                                <button class="btn">Ubah</button>
+                                <a href="<?= site_url('/tipe-produk/edit/' . $product['id']) ?>" class="btn-edit">Ubah</a>
                                 <a href="<?= site_url('/tipe-produk/delete/' . $product['id']) ?>" class="btn-delete" onclick="return confirm('Yakin ingin menghapus produk ini?');">Hapus</a>
                             </td>
                         </tr>

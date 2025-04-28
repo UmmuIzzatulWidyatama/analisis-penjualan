@@ -14,7 +14,9 @@ $routes->post('/rule/update/(:num)', 'RuleController::update/$1'); // proses upd
 $routes->get('/tipe-produk', 'TipeProdukController::index');
 $routes->get('/tipe-produk/add', 'TipeProdukController::add'); //show form add produk
 $routes->post('/tipe-produk/save', 'TipeProdukController::save'); // simpan data produk
-$routes->get('/tipe-produk/delete/(:num)', 'TipeProdukController::delete/$1');
+$routes->get('/tipe-produk/delete/(:num)', 'TipeProdukController::delete/$1'); //delete produk
+$routes->get('/tipe-produk/edit/(:num)', 'TipeProdukController::edit/$1'); // tampilkan form edit
+$routes->post('/tipe-produk/update/(:num)', 'TipeProdukController::update/$1'); // proses update
 $routes->get('/transaksi', 'TransaksiController::index');
 $routes->get('analisis-data', 'AnalisisDataController::index'); //list page analisis info
 $routes->get('analisis-data/add', 'AnalisisDataController::add'); //analisis information

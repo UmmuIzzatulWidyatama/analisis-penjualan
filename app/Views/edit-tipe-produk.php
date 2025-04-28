@@ -144,25 +144,25 @@
     
     <div class="content">
         <div class="form-container">
-            <h1>Tambah Produk</h1>
+        <h1>Edit Produk</h1>
 
-            <?php if(session()->getFlashdata('error')): ?>
-                <div style="color: #ef4444; margin-bottom: 12px;">
-                    <?= session()->getFlashdata('error') ?>
-                </div>
-            <?php endif; ?>
-
-            <form action="<?= site_url('/tipe-produk/save') ?>" method="post">
-                <?= csrf_field() ?>
-                <div class="form-group">
-                    <label for="name">Nama Produk <span class="required">*</span></label>
-                    <input type="text" id="name" name="name" required>
-                </div>
-                <div class="buttons">
-                    <a href="<?= site_url('/tipe-produk') ?>" class="btn-back">Kembali</a>
-                    <button type="submit" class="btn-submit">Simpan</button>
-                </div>
-            </form>
+        <?php if(session()->getFlashdata('error')): ?>
+            <div style="color: #ef4444; margin-bottom: 12px;">
+                <?= session()->getFlashdata('error') ?>
+            </div>
+        <?php endif; ?>
+        
+        <form action="<?= site_url('/tipe-produk/update/'.$product['id']) ?>" method="post">
+            <?= csrf_field() ?>
+            <div class="form-group">
+                <label for="name">Nama Produk <span class="required">*</span></label>
+                <input type="text" id="name" name="name" value="<?= esc($product['name']) ?>" required>
+            </div>
+            <div class="buttons">
+                <a href="<?= site_url('/tipe-produk') ?>" class="btn-back">Kembali</a>
+                <button type="submit" class="btn-submit">Simpan</button>
+            </div>
+        </form>
         </div>
     </div>
 
