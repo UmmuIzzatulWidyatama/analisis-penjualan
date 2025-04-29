@@ -94,10 +94,12 @@
         .btn-delete {
             background-color: #ef4444;
             color: white;
+            border: none;
             padding: 5px 10px;
             border-radius: 4px;
+            cursor: pointer;
+            text-align: center;
             text-decoration: none;
-            font-size: 13px;
         }
         .btn-delete:hover {
             background-color: #dc2626;

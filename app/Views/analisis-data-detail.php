@@ -55,10 +55,10 @@
             <span><strong>Minimum Confidence:</strong> <?= esc($analisis['minimum_confidence']) ?>%</span>
         </div>
 
-        <?php if (!empty($recommendation)): ?>
+        <?php if (!empty($rekomendasi)): ?>
         <div class="recommend-box">
-            Berdasarkan hasil analisis, kombinasi terbaik adalah <strong><?= esc($recommendation['from']) ?> → <?= esc($recommendation['to']) ?></strong>
-            dengan confidence <strong><?= esc($recommendation['confidence']) ?>%</strong>.
+            Berdasarkan hasil analisis, kombinasi terbaik adalah <strong><?= esc($rekomendasi['rule']) ?></strong>
+            dengan confidence <strong><?= esc($rekomendasi['confidence']) ?>%</strong>.
             Disarankan untuk fokus pada promosi atau strategi kombinasi produk ini.
         </div>
         <?php endif; ?>
@@ -67,9 +67,7 @@
         <h2>Itemset 1</h2>
         <p>Minimum Support: <?= esc($analisis['minimum_support']) ?>%</p>
         <table>
-            <thead>
-                <tr><th>Itemset</th><th>Frekuensi</th><th>Support</th></tr>
-            </thead>
+            <thead><tr><th>Itemset</th><th>Frekuensi</th><th>Support</th></tr></thead>
             <tbody>
                 <?php foreach ($itemset1 as $row): ?>
                 <tr class="<?= $row['is_below_threshold'] ? 'low-support' : '' ?>">
@@ -85,9 +83,7 @@
         <h2>Itemset 2</h2>
         <p>Minimum Support: <?= esc($analisis['minimum_support']) ?>%</p>
         <table>
-            <thead>
-                <tr><th>Itemset</th><th>Frekuensi</th><th>Support</th></tr>
-            </thead>
+            <thead><tr><th>Itemset</th><th>Frekuensi</th><th>Support</th></tr></thead>
             <tbody>
                 <?php foreach ($itemset2 as $row): ?>
                 <tr class="<?= $row['is_below_threshold'] ? 'low-support' : '' ?>">
@@ -103,13 +99,11 @@
         <h2>Itemset 3</h2>
         <p>Minimum Support: <?= esc($analisis['minimum_support']) ?>%</p>
         <table>
-            <thead>
-                <tr><th>Itemset</th><th>Frekuensi</th><th>Support</th></tr>
-            </thead>
+            <thead><tr><th>Itemset</th><th>Frekuensi</th><th>Support</th></tr></thead>
             <tbody>
                 <?php foreach ($itemset3 as $row): ?>
                 <tr class="<?= $row['is_below_threshold'] ? 'low-support' : '' ?>">
-                    <td><?= esc($row['product_names']) ?></td>
+                    <td><?= esc($row['item']) ?></td>
                     <td><?= esc($row['support_count']) ?></td>
                     <td><?= esc($row['support_percent']) ?>%</td>
                 </tr>
@@ -120,11 +114,9 @@
         <!-- Asosiasi 2 Item -->
         <h2>Asosiasi 2 Item</h2>
         <table>
-            <thead>
-                <tr><th>Rule</th><th>Confidence</th></tr>
-            </thead>
+            <thead><tr><th>Rule</th><th>Confidence</th></tr></thead>
             <tbody>
-                <?php foreach ($association2  as $row): ?>
+                <?php foreach ($association2 as $row): ?>
                 <tr>
                     <td><?= esc($row['rule']) ?></td>
                     <td><?= esc($row['confidence']) ?>%</td>
@@ -136,9 +128,7 @@
         <!-- Asosiasi 3 Item -->
         <h2>Asosiasi 3 Item</h2>
         <table>
-            <thead>
-                <tr><th>Rule</th><th>Confidence</th></tr>
-            </thead>
+            <thead><tr><th>Rule</th><th>Confidence</th></tr></thead>
             <tbody>
                 <?php foreach ($association3 as $row): ?>
                 <tr>

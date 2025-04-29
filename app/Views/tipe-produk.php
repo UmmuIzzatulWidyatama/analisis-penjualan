@@ -82,7 +82,8 @@
             padding: 5px 10px;
             border-radius: 4px;
             cursor: pointer;
-            text-align: center;
+            text-align: center; 
+            text-decoration: none;
         }
         .btn-danger {
             background-color: #dc3545;
@@ -96,7 +97,6 @@
             padding: 5px 10px;
             border-radius: 4px;
             text-decoration: none;
-            font-size: 13px;
         }
         .btn-delete:hover {
             background-color: #dc2626;
@@ -107,7 +107,6 @@
             padding: 5px 10px;
             border-radius: 4px;
             text-decoration: none;
-            font-size: 13px;
         }
         .btn-edit:hover {
             background-color: #d97706;
