@@ -75,16 +75,28 @@
             background-color: #f4f4f4;
         }
         .btn {
-            background-color: #007bff;
+            background-color: #3b82f6; 
             color: white;
             border: none;
             padding: 5px 10px;
             border-radius: 4px;
             cursor: pointer;
-            text-align: center;
+            text-align: center; 
+            text-decoration: none;
         }
-        .btn-danger {
-            background-color: #dc3545;
+        .btn:hover {
+            background-color: #2563eb;
+        }
+        .btn-delete {
+            background-color: #ef4444;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 4px;
+            text-decoration: none;
+            font-size: 13px;
+        }
+        .btn-delete:hover {
+            background-color: #dc2626;
         }
         .btn:hover {
             opacity: 0.8;
@@ -104,6 +116,18 @@
         <a href="<?= site_url('/logout') ?>" class="logout">Logout</a>
     </div>
     <div class="content">
+        <?php if(session()->getFlashdata('success')): ?>
+            <div style="background-color: #d4edda; color: #155724; padding: 10px 15px; border-radius: 4px; margin-bottom: 20px;">
+                <?= session()->getFlashdata('success') ?>
+            </div>
+        <?php endif; ?>
+
+        <?php if(session()->getFlashdata('error')): ?>
+            <div style="background-color: #f8d7da; color: #721c24; padding: 10px 15px; border-radius: 4px; margin-bottom: 20px;">
+                <?= session()->getFlashdata('error') ?>
+            </div>
+        <?php endif; ?>
+        
         <h1>Data Transaksi</h1>
         <a href="<?= base_url('transaksi/add') ?>" class="add-button">Tambah Data Transaksi</a>
         <table>
@@ -123,8 +147,8 @@
                             <td><?= esc($transaction['products']) ?></td>
                             <td><?= esc($transaction['sale_date']) ?></td>
                             <td>
-                                <button class="btn">Ubah</button>
-                                <button class="btn btn-danger">Hapus</button>
+                                <a href="<?= site_url('/transaksi/detail/' . $transaction['id']) ?>" class="btn">Detail</a>
+                                <a href="<?= site_url('/transaksi/delete/' . $transaction['id']) ?>" class="btn btn-delete" onclick="return confirm('Yakin ingin menghapus transaksi ini?')">Hapus</a>
                             </td>
                         </tr>
                     <?php endforeach; ?>

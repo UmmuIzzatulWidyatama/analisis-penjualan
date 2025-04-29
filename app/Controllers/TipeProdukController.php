@@ -59,15 +59,23 @@ class TipeProdukController extends BaseController
     public function delete($id)
     {
         $model = new \App\Models\TipeProdukModel();
+        $db = \Config\Database::connect();
 
+        // 1. Cek apakah data produk ada
         $product = $model->find($id);
-
         if (!$product) {
             return redirect()->to('/tipe-produk')->with('error', 'Produk tidak ditemukan.');
         }
 
-        $model->delete($id);
+        // 2. Cek apakah produk sedang digunakan di tabel lain (misalnya itemset_1)
+        $isUsed = $db->table('itemset_1')->where('product_type_id', $id)->countAllResults();
 
+        if ($isUsed > 0) {
+            return redirect()->to('/tipe-produk')->with('error', 'Produk tidak bisa dihapus karena sudah digunakan dalam data lain.');
+        }
+
+        // 3. Hapus data jika aman
+        $model->delete($id);
         return redirect()->to('/tipe-produk')->with('success', 'Produk berhasil dihapus.');
     }
 

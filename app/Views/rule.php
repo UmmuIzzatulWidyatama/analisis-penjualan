@@ -62,7 +62,7 @@
             background-color: #f4f4f4;
         }
         .btn {
-            background-color: #007bff;
+            background-color: #f59e0b; 
             color: white;
             border: none;
             padding: 5px 10px;
@@ -72,7 +72,7 @@
             text-decoration: none;
         }
         .btn:hover {
-            background-color: #0056b3;
+            background-color: #d97706;
         }
     </style>
 </head>
@@ -89,6 +89,19 @@
         <a href="<?= site_url('/logout') ?>" class="logout">Logout</a>
     </div>
     <div class="content">
+    
+        <?php if(session()->getFlashdata('success')): ?>
+                <div style="background-color: #d4edda; color: #155724; padding: 10px 15px; border-radius: 4px; margin-bottom: 20px;">
+                    <?= session()->getFlashdata('success') ?>
+                </div>
+        <?php endif; ?>
+
+        <?php if(session()->getFlashdata('error')): ?>
+                <div style="background-color: #f8d7da; color: #721c24; padding: 10px 15px; border-radius: 4px; margin-bottom: 20px;">
+                    <?= session()->getFlashdata('error') ?>
+                </div>
+        <?php endif; ?>
+        
         <!-- Konten untuk halaman Rule -->
         <h1>Rule</h1>
         <table>

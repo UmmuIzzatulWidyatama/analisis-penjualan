@@ -128,8 +128,22 @@
         <a href="<?= site_url('/logout') ?>" class="logout">Logout</a>
     </div>
     <div class="content">
-        <!-- Konten untuk halaman tipe produk -->
+    
+        <?php if(session()->getFlashdata('success')): ?>
+            <div style="background-color: #d4edda; color: #155724; padding: 10px 15px; border-radius: 4px; margin-bottom: 20px;">
+                <?= session()->getFlashdata('success') ?>
+            </div>
+        <?php endif; ?>
+
+        <?php if(session()->getFlashdata('error')): ?>
+            <div style="background-color: #f8d7da; color: #721c24; padding: 10px 15px; border-radius: 4px; margin-bottom: 20px;">
+                <?= session()->getFlashdata('error') ?>
+            </div>
+        <?php endif; ?>
+        
+    <!-- Konten untuk halaman tipe produk -->
         <h1>Data Tipe Produk</h1>
+
         <a href="<?= site_url('tipe-produk/add') ?>" class="add-button">Tambah Tipe Produk</a>
         <table>
             <thead>
