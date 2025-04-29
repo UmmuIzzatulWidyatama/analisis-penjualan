@@ -3,7 +3,13 @@
 namespace App\Controllers;
 
 use App\Models\AnalisisDataModel;
+use App\Models\AssociationRuleModel;
 use App\Models\RuleModel;
+use App\Models\Itemset1Model;
+use App\Models\Itemset2Model;
+use App\Models\Itemset3Model;
+use CodeIgniter\Controller;
+
 
 class AnalisisDataController extends BaseController
 {
@@ -20,6 +26,32 @@ class AnalisisDataController extends BaseController
         $data['analisis_data'] = $model->findAll(); // Ambil semua data dari tabel rules
         session()->remove(['analisis_id','start_date', 'end_date', 'description']);
         return view('analisis-data', $data); // Kirim data ke view
+    }
+
+    public function delete($id)
+    {
+        $analisisModel = new AnalisisDataModel();
+        $itemset1Model = new Itemset1Model();
+        $itemset2Model = new Itemset2Model();
+        $itemset3Model = new Itemset3Model();
+        $associationRuleModel = new AssociationRuleModel();
+
+        $analisis = $analisisModel->find($id);
+
+        if (!$analisis) {
+            return redirect()->to('/analisis-data')->with('error', 'Data analisis tidak ditemukan.');
+        }
+
+        // Hapus data anak terlebih dahulu
+        $itemset1Model->where('analisis_data_id', $id)->delete();
+        $itemset2Model->where('analisis_data_id', $id)->delete();
+        $itemset3Model->where('analisis_data_id', $id)->delete();
+        $associationRuleModel->where('analisis_data_id', $id)->delete();
+
+        // Setelah anak terhapus, hapus parent
+        $analisisModel->delete($id);
+
+        return redirect()->to('/analisis-data')->with('success', 'Data analisis berhasil dihapus.');
     }
 
     public function add()

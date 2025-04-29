@@ -90,6 +90,17 @@
         .btn:hover {
             background-color: #0056b3;
         }
+        .btn-delete {
+            background-color: #ef4444;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 4px;
+            text-decoration: none;
+            font-size: 13px;
+        }
+        .btn-delete:hover {
+            background-color: #dc2626;
+        }
     </style>
 </head>
 <body> 
@@ -104,7 +115,19 @@
         </div>
         <a href="<?= site_url('/logout') ?>" class="logout">Logout</a>
     </div>
-    <div class="content">
+    <div class="content"> 
+        <?php if(session()->getFlashdata('success')): ?>
+                <div style="background-color: #d4edda; color: #155724; padding: 10px 15px; border-radius: 4px; margin-bottom: 20px;">
+                    <?= session()->getFlashdata('success') ?>
+                </div>
+        <?php endif; ?>
+
+        <?php if(session()->getFlashdata('error')): ?>
+                <div style="background-color: #f8d7da; color: #721c24; padding: 10px 15px; border-radius: 4px; margin-bottom: 20px;">
+                    <?= session()->getFlashdata('error') ?>
+                </div>
+        <?php endif; ?>
+
         <!-- Konten untuk halaman Rule -->
         <h1>Analisis Data</h1>
         <a href="<?= site_url('analisis-data/add') ?>" class="add-button">Tambah Analisis Data</a>
@@ -128,7 +151,7 @@
                             <td><?= esc($data['description']) ?></td>
                             <td>
                                 <button class="btn">Detail</button>
-                                <button class="btn btn-danger">Hapus</button>
+                                <a href="<?= site_url('/analisis-data/delete/' . $data['id']) ?>" class="btn-delete" onclick="return confirm('Yakin ingin menghapus produk ini?');">Hapus</a>
                             </td>
                         </tr>
                     <?php endforeach; ?>

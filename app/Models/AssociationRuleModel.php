@@ -7,6 +7,7 @@ use CodeIgniter\Model;
 class AssociationRuleModel extends Model
 {
     protected $table = 'association_rules';
+    protected $primaryKey = 'id';
     protected $allowedFields = [
         'analisis_data_id',
         'from_item',

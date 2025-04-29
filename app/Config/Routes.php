@@ -22,7 +22,7 @@ $routes->get('/transaksi', 'TransaksiController::index'); //list page transaksi
 $routes->get('/transaksi/add', 'TransaksiController::add'); //show form add transaksi
 $routes->post('/transaksi/save', 'TransaksiController::save'); //simpan data transaksi
 $routes->get('/transaksi/delete/(:num)', 'TransaksiController::delete/$1'); //delete produk
-$routes->get('/transaksi/detail/(:num)', 'TransaksiController::detail/$1'); // tampilkan form edit               
+$routes->get('/transaksi/detail/(:num)', 'TransaksiController::detail/$1'); // tampilkan form detail               
 //analisis data
 $routes->get('analisis-data', 'AnalisisDataController::index'); //list page analisis info
 $routes->get('analisis-data/add', 'AnalisisDataController::add'); //analisis information
@@ -31,4 +31,6 @@ $routes->get('/analisis-data/itemset1', 'ItemsetController::itemset1'); // items
 $routes->get('/analisis-data/itemset2', 'ItemsetController::itemset2'); // itemset 2
 $routes->get('/analisis-data/itemset3', 'ItemsetController::itemset3'); // itemset 2
 $routes->get('/analisis-data/asosiasi', 'ItemsetController::asosiasi'); //asosiasi
-$routes->get('/analisis-data/kesimpulan', 'ItemsetController::kesimpulan'); //kesimpulan 
+$routes->get('/analisis-data/kesimpulan', 'ItemsetController::kesimpulan'); //kesimpulan
+$routes->get('/analisis-data/delete/(:num)', 'AnalisisDataController::delete/$1'); //delete analisis data
+$routes->get('/analisis-data/detail/(:num)', 'AnalisisDataController::detail/$1'); // tampilkan form detail               
