@@ -83,6 +83,7 @@
             border-radius: 4px;
             cursor: pointer;
             text-align: center;
+            text-decoration: none;
         }
         .btn-danger {
             background-color: #dc3545;
@@ -150,7 +151,7 @@
                             <td><?= esc($data['end_date']) ?></td>
                             <td><?= esc($data['description']) ?></td>
                             <td>
-                                <button class="btn">Detail</button>
+                                <a href="<?= base_url('analisis-data/detail/' . $data['id']) ?>" class="btn">Detail</a>
                                 <a href="<?= site_url('/analisis-data/delete/' . $data['id']) ?>" class="btn-delete" onclick="return confirm('Yakin ingin menghapus produk ini?');">Hapus</a>
                             </td>
                         </tr>

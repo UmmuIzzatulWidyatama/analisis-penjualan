@@ -8,6 +8,7 @@ use App\Models\RuleModel;
 use App\Models\Itemset1Model;
 use App\Models\Itemset2Model;
 use App\Models\Itemset3Model;
+use App\Models\TipeProdukModel;
 use CodeIgniter\Controller;
 
 
@@ -378,4 +379,93 @@ class AnalisisDataController extends BaseController
          return redirect()->to('/analisis-data/itemset1');
 
     }
+
+    public function detail($id)
+    {
+        $analisisModel = new AnalisisDataModel();
+        $itemset1Model = new Itemset1Model();
+        $itemset2Model = new Itemset2Model();
+        $itemset3Model = new Itemset3Model();
+        $associationModel = new AssociationRuleModel();
+        $productModel = new TipeProdukModel();
+
+        $analisis = $analisisModel->find($id);
+        if (!$analisis) {
+            return redirect()->to('/analisis-data')->with('error', 'Data analisis tidak ditemukan.');
+        }
+
+        // Itemset 1
+        $itemset1 = $itemset1Model->where('analisis_data_id', $id)->findAll();
+        foreach ($itemset1 as &$row) {
+            $product = $productModel->find($row['product_type_id']);
+            $row['product_name'] = $product['name'] ?? 'Unknown';
+        }
+
+        // Itemset 2
+        $itemset2 = $itemset2Model->where('analisis_data_id', $id)->findAll();
+        foreach ($itemset2 as &$row) {
+            $p1 = $productModel->find($row['product_type_id_1']);
+            $p2 = $productModel->find($row['product_type_id_2']);
+            $row['product_names'] = ($p1['name'] ?? '?') . ' & ' . ($p2['name'] ?? '?');
+        }
+
+        // Itemset 3
+        $itemset3 = $itemset3Model->where('analisis_data_id', $id)->findAll();
+        foreach ($itemset3 as &$row) {
+            $p1 = $productModel->find($row['product_type_id_1']);
+            $p2 = $productModel->find($row['product_type_id_2']);
+            $p3 = $productModel->find($row['product_type_id_3']);
+            $row['product_names'] = implode(' & ', array_filter([
+                $p1['name'] ?? null,
+                $p2['name'] ?? null,
+                $p3['name'] ?? null
+            ]));
+        }
+
+        // Association Rules
+        $associationRules = $associationModel->where('analisis_data_id', $id)->findAll();
+        $association2 = [];
+        $association3 = [];
+
+        foreach ($associationRules as $rule) {
+            if ($rule['from_item_2'] == null) {
+                $from = $productModel->find($rule['from_item'])['name'] ?? '?';
+                $to = $productModel->find($rule['to_item'])['name'] ?? '?';
+                $association2[] = [
+                    'rule' => "$from → $to",
+                    'from' => $from,
+                    'to' => $to,
+                    'confidence' => $rule['confidence_percent']
+                ];
+            } else {
+                $f1 = $productModel->find($rule['from_item'])['name'] ?? '?';
+                $f2 = $productModel->find($rule['from_item_2'])['name'] ?? '?';
+                $to = $productModel->find($rule['to_item'])['name'] ?? '?';
+                $association3[] = [
+                    'rule' => "$f1 & $f2 → $to",
+                    'confidence' => $rule['confidence_percent']
+                ];
+            }
+        }
+
+        // Cari rekomendasi terbaik
+        $bestRule = null;
+        foreach ($association2 as $r) {
+            if ($bestRule === null || $r['confidence'] > $bestRule['confidence']) {
+                $bestRule = $r;
+            }
+        }
+
+        return view('analisis-data-detail', [
+            'analisis' => $analisis,
+            'itemset1' => $itemset1,
+            'itemset2' => $itemset2,
+            'itemset3' => $itemset3,
+            'association2' => $association2,
+            'association3' => $association3,
+            'recommendation' => $bestRule // <- pakai 'recommendation' di view
+        ]);
+    }
+
+
 }
