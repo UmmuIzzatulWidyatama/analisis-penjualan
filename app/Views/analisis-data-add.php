@@ -138,7 +138,10 @@
         .btn:hover {
             opacity: 0.9;
         }
-        
+        span.required {
+            color: #ef4444;
+            margin-left: 4px;
+        }
     </style>
 </head>
 <body>
@@ -187,15 +190,15 @@
         <h1>Main Info</h1>
         <form action="<?= base_url('analisis-data/save'); ?>" method="post">
             <div class="form-group">
-                <label for="start_date">Tanggal Awal *</label>
+                <label for="start_date">Tanggal Awal <span class="required">*</span></label>
                 <input type="date" name="start_date" value="<?= esc($start_date ?? '') ?>" required>
             </div>
             <div class="form-group">
-                <label for="end_date">Tanggal Akhir *</label>
+                <label for="end_date">Tanggal Akhir <span class="required">*</span></label>
                 <input type="date" name="end_date" value="<?= esc($end_date ?? '') ?>" required>
             </div>
             <div class="form-group">
-                <label for="description">Deskripsi *</label>
+                <label for="description">Deskripsi <span class="required">*</span></label>
                 <textarea name="description" required><?= esc($description ?? '') ?></textarea>
             </div>
             <div class="form-actions">
