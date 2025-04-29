@@ -49,17 +49,12 @@
             color: #ef4444;
         }
         .content {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: calc(100vh - 100px);
-        }
-        .form-container {
+            max-width: 600px;
+            margin: 40px auto;
             background-color: white;
-            padding: 40px 40px;
+            padding: 32px 40px;
             border-radius: 12px;
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
-            width: 400px;
         }
         h1 {
             font-size: 20px;
@@ -166,7 +161,6 @@
     </div>
     
     <div class="content">
-        <div class="form-container">
             <h1>Ubah Rule</h1>
             <form action="<?= site_url('/rule/update/'.$rule['id']) ?>" method="post"> 
                 <?= csrf_field() ?>
@@ -186,7 +180,6 @@
                     <button type="submit" class="btn-submit">Simpan</button>
                 </div>
             </form>
-        </div>
     </div>
 
 </body>
