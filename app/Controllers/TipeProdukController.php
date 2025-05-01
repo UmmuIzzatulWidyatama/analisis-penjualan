@@ -3,6 +3,7 @@
 namespace App\Controllers;
 
 use App\Models\TipeProdukModel;
+use PhpOffice\PhpSpreadsheet\IOFactory;
 
 class TipeProdukController extends BaseController
 {
@@ -112,5 +113,76 @@ class TipeProdukController extends BaseController
         return redirect()->to('/tipe-produk')->with('success', 'Produk berhasil diperbarui.');
     }
 
+    public function showUploadBulk()
+    {
+        return view('tipe-produk-upload-bulk');
+    }
+
+    public function uploadBulk()
+    {
+        $file = $this->request->getFile('file');
+        $results = [];
+
+        if ($file && $file->isValid()) {
+            $spreadsheet = \PhpOffice\PhpSpreadsheet\IOFactory::load($file->getTempName());
+            $sheet = $spreadsheet->getActiveSheet()->toArray();
+            $model = new TipeProdukModel();
+
+            foreach ($sheet as $index => $row) {
+                if ($index === 0) continue; // skip header
+
+                $rowNumber = $row[0];
+                $name = trim($row[1]);
+
+                if (empty($name)) {
+                    $results[] = [
+                        'row' => $rowNumber,
+                        'name' => '',
+                        'status' => 'Nama tidak boleh kosong'
+                    ];
+                    continue;
+                }
+
+                // Cek apakah produk sudah ada di database
+                $exists = $model->where('name', $name)->first();
+
+                if ($exists) {
+                    $results[] = [
+                        'row' => $rowNumber,
+                        'name' => $name,
+                        'status' => 'Data sudah ada di database'
+                    ];
+                    continue;
+                }
+
+                $results[] = [
+                    'row' => $rowNumber,
+                    'name' => $name,
+                    'status' => 'Siap disimpan'
+                ];
+            }
+        }
+
+        return view('tipe-produk-upload-bulk', ['results' => $results]);
+    }
+
+    public function saveBulk()
+    {
+        $names = $this->request->getPost('names');
+        $model = new TipeProdukModel();
+
+        foreach ($names as $name) {
+            if (!empty($name)) {
+                $model->insert(['name' => $name]);
+            }
+        }
+
+        return redirect()->to('/tipe-produk')->with('message', 'Berhasil menyimpan data!');
+    }
+
+    public function downloadTemplate()
+    {
+        return $this->response->download(WRITEPATH . 'uploads/template-upload-produk.xlsx', null);
+    }
 
 }

@@ -62,6 +62,20 @@
         .add-button:hover {
             background-color: #218838;
         }
+        .upload-button {
+            margin-bottom: 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .upload-button:hover {
+            background-color: #0056b3;
+        }
         table {
             width: 100%;
             border-collapse: collapse;
@@ -144,6 +158,7 @@
         <h1>Data Tipe Produk</h1>
 
         <a href="<?= site_url('tipe-produk/add') ?>" class="add-button">Tambah Tipe Produk</a>
+        <a href="<?= site_url('tipe-produk/showUploadBulk') ?>" class="upload-button">Upload Bulk</a>
         <table>
             <thead>
                 <tr>

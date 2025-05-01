@@ -16,7 +16,13 @@ $routes->get('/tipe-produk/add', 'TipeProdukController::add'); //show form add p
 $routes->post('/tipe-produk/save', 'TipeProdukController::save'); // simpan data produk
 $routes->get('/tipe-produk/delete/(:num)', 'TipeProdukController::delete/$1'); //delete produk
 $routes->get('/tipe-produk/edit/(:num)', 'TipeProdukController::edit/$1'); // tampilkan form edit
-$routes->post('/tipe-produk/update/(:num)', 'TipeProdukController::update/$1'); // proses update               
+$routes->post('/tipe-produk/update/(:num)', 'TipeProdukController::update/$1'); // proses update 
+//bulk upload produk
+$routes->get('/tipe-produk/showUploadBulk', 'TipeProdukController::showUploadBulk'); // tampilkan halaman upload bulk produk
+$routes->get('/tipe-produk/downloadTemplate', 'TipeProdukController::downloadTemplate'); // download template upload bulk produk
+$routes->post('/tipe-produk/uploadBulk', 'TipeProdukController::uploadBulk'); // upload bulk template excel
+$routes->post('/tipe-produk/saveBulk', 'TipeProdukController::saveBulk'); //simpan bulk data ke database
+
 //transaksi
 $routes->get('/transaksi', 'TransaksiController::index'); //list page transaksi
 $routes->get('/transaksi/add', 'TransaksiController::add'); //show form add transaksi
