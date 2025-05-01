@@ -22,13 +22,17 @@ $routes->get('/tipe-produk/showUploadBulk', 'TipeProdukController::showUploadBul
 $routes->get('/tipe-produk/downloadTemplate', 'TipeProdukController::downloadTemplate'); // download template upload bulk produk
 $routes->post('/tipe-produk/uploadBulk', 'TipeProdukController::uploadBulk'); // upload bulk template excel
 $routes->post('/tipe-produk/saveBulk', 'TipeProdukController::saveBulk'); //simpan bulk data ke database
-
 //transaksi
 $routes->get('/transaksi', 'TransaksiController::index'); //list page transaksi
 $routes->get('/transaksi/add', 'TransaksiController::add'); //show form add transaksi
 $routes->post('/transaksi/save', 'TransaksiController::save'); //simpan data transaksi
 $routes->get('/transaksi/delete/(:num)', 'TransaksiController::delete/$1'); //delete produk
 $routes->get('/transaksi/detail/(:num)', 'TransaksiController::detail/$1'); // tampilkan form detail               
+//bulk upload transaksi
+$routes->get('/transaksi/showUploadBulk', 'TransaksiController::showUploadBulk'); // tampilkan halaman upload bulk transaksi
+$routes->get('/transaksi/downloadTemplate', 'TransaksiController::downloadTemplate'); // download template upload bulk transaksi
+$routes->post('/transaksi/uploadBulk', 'TransaksiController::uploadBulk'); // upload bulk template excel
+$routes->post('/transaksi/saveBulk', 'TransaksiController::saveBulk'); //simpan bulk data ke database
 //analisis data
 $routes->get('analisis-data', 'AnalisisDataController::index'); //list page analisis info
 $routes->get('analisis-data/add', 'AnalisisDataController::add'); //analisis information

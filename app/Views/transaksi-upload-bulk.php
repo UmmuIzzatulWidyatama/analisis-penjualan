@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Upload Bulk Produk</title>
+    <title>Upload Bulk Transaksi</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
     <style>
         body {
@@ -40,16 +40,8 @@
         .navbar-menu a:hover {
             background-color: #e5e7eb;
         }
-        .navbar .logout {
-            text-decoration: none;
-            color: #374151;
-            font-size: 14px;
-        }
-        .navbar .logout:hover {
-            color: #ef4444;
-        }
         .content {
-            max-width: 600px;
+            max-width: 700px;
             margin: 40px auto;
             background-color: white;
             padding: 32px 40px;
@@ -57,7 +49,7 @@
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
         }
         h1 {
-            font-size: 20px;
+            font-size: 22px;
             margin-bottom: 24px;
             color: #111827;
         }
@@ -87,12 +79,20 @@
             padding: 8px 16px;
             border: none;
             color: #fff;
-            text-decoration: none;
             border-radius: 4px;
             cursor: pointer;
             font-weight: 600;
             font-size: 14px;
             transition: background 0.2s, opacity 0.2s;
+        }
+        .button-group .back {
+            background-color: #f9fafb;
+            color: #374151;
+            border: 1px solid #d1d5db;
+        }
+
+        .button-group .back:hover {
+            background-color: #f9fafb;
         }
         .btn-upload {
             background-color: #3b82f6;
@@ -130,7 +130,7 @@
             background-color: #f9fafb;
             color: #111827;
         }
-        .invalid-row {
+        tr.invalid {
             background-color: #ffe5e5;
         }
         .action-buttons {
@@ -147,14 +147,6 @@
             border: 1px solid transparent;
             transition: background 0.2s, border 0.2s;
         }
-        .action-buttons .back {
-            background-color: #fff;
-            color: #111827;
-            border: 1px solid #d1d5db;
-        }
-        .action-buttons .back:hover {
-            background-color: #f9fafb;
-        }
         .action-buttons .save {
             background-color: #3b82f6;
             color: #fff;
@@ -169,15 +161,6 @@
             border-color: #93c5fd;
             cursor: not-allowed;
         }
-        .button-group .back {
-            background-color: #f9fafb;
-            color: #374151;
-            border: 1px solid #d1d5db;
-        }
-
-        .button-group .back:hover {
-            background-color: #f9fafb;
-        }
     </style>
 </head>
 <body>
@@ -185,8 +168,8 @@
 <div class="navbar">
     <div class="navbar-menu">
         <a href="<?= base_url('rule') ?>">Rule</a>
-        <a href="<?= base_url('tipe-produk') ?>" class="active">Tipe Produk</a>
-        <a href="<?= base_url('transaksi') ?>">Transaksi</a>
+        <a href="<?= base_url('tipe-produk') ?>">Tipe Produk</a>
+        <a href="<?= base_url('transaksi') ?>" class="active">Transaksi</a>
         <a href="<?= base_url('itemset') ?>">Itemset</a>
         <a href="<?= base_url('asosiasi') ?>">Asosiasi</a>
     </div>
@@ -194,54 +177,54 @@
 </div>
 
 <div class="content">
-    <h1>Upload Bulk Produk</h1>
+    <h1>Upload Bulk Transaksi</h1>
 
-    <form action="<?= base_url('/tipe-produk/uploadBulk') ?>" method="post" enctype="multipart/form-data">
+    <form action="<?= base_url('/transaksi/uploadBulk') ?>" method="post" enctype="multipart/form-data">
         <div class="upload-section">
             <label>Upload Template</label>
             <input type="file" id="fileInput" name="file" accept=".xlsx" onchange="checkFileSelected()">
         </div>
         <div class="button-group">
             <button type="submit" id="uploadBtn" class="btn-upload" disabled>Upload</button>
-            <a href="<?= base_url('/tipe-produk/downloadTemplate') ?>">
+            <a href="<?= base_url('/transaksi/downloadTemplate') ?>">
                 <button type="button" class="btn-download">Download Template</button>
             </a>
         </div>
-
     </form>
     <p class="notice">*XLS file with a size less than 10 MB</p>
 
     <?php if (!empty($results)): ?>
-        <form action="<?= base_url('/tipe-produk/saveBulk') ?>" method="post">
+        <?php $allValid = true; ?>
+        <form action="<?= base_url('/transaksi/saveBulk') ?>" method="post">
             <table>
                 <thead>
                     <tr>
-                        <th>Baris ke</th>
+                        <th>Baris Ke</th>
+                        <th>Tanggal Penjualan</th>
                         <th>Nama Produk</th>
                         <th>Status</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <?php
-                    $allValid = true;
-                    foreach ($results as $r):
-                        $isValid = $r['status'] === 'Siap disimpan'; 
-                        if (!$isValid) $allValid = false;
-                    ?>
-                        <tr class="<?= !$isValid ? 'invalid-row' : '' ?>">
-                            <td><?= esc($r['row']) ?></td>
-                            <td><?= esc($r['name']) ?></td>
-                            <td><?= esc($r['status']) ?></td>
+                    <?php foreach ($results as $row): ?>
+                        <tr class="<?= $row['status'] !== 'Siap disimpan' ? 'invalid' : '' ?>">
+                            <td><?= esc($row['row']) ?></td>
+                            <td><?= esc($row['sale_date']) ?></td>
+                            <td><?= esc($row['product_name']) ?></td>
+                            <td><?= esc($row['status']) ?></td>
                         </tr>
-                        <?php if ($isValid): ?>
-                            <input type="hidden" name="names[]" value="<?= esc($r['name']) ?>">
+                        <?php if ($row['is_valid']): ?>
+                            <input type="hidden" name="sale_dates[]" value="<?= esc($row['sale_date']) ?>">
+                            <input type="hidden" name="product_names[]" value="<?= esc($row['product_name']) ?>">
+                        <?php else: ?>
+                            <?php $allValid = false; ?>
                         <?php endif; ?>
                     <?php endforeach; ?>
                 </tbody>
             </table>
 
             <div class="action-buttons">
-                <a href="<?= base_url('/tipe-produk') ?>">
+                <a href="<?= base_url('/transaksi') ?>">
                     <button type="button" class="back">Kembali</button>
                 </a>
                 <button type="submit" class="save" <?= $allValid ? '' : 'disabled' ?>>Simpan</button>

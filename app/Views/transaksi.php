@@ -62,6 +62,20 @@
         .add-button:hover {
             background-color: #218838;
         }
+        .upload-button {
+            margin-bottom: 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .upload-button:hover {
+            background-color: #0056b3;
+        }
         table {
             width: 100%;
             border-collapse: collapse;
@@ -132,6 +146,7 @@
         
         <h1>Data Transaksi</h1>
         <a href="<?= base_url('transaksi/add') ?>" class="add-button">Tambah Data Transaksi</a>
+        <a href="<?= site_url('transaksi/showUploadBulk') ?>" class="upload-button">Upload Bulk</a>
         <table>
             <thead>
                 <tr>
