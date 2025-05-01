@@ -169,6 +169,15 @@
             border-color: #93c5fd;
             cursor: not-allowed;
         }
+        .button-group .back {
+            background-color: #f9fafb;
+            color: #374151;
+            border: 1px solid #d1d5db;
+        }
+
+        .button-group .back:hover {
+            background-color: #f9fafb;
+        }
     </style>
 </head>
 <body>
@@ -193,11 +202,15 @@
             <input type="file" id="fileInput" name="file" accept=".xlsx" onchange="checkFileSelected()">
         </div>
         <div class="button-group">
+            <a href="<?= base_url('/tipe-produk') ?>">
+                <button type="button" class="back">Kembali</button>
+            </a>
             <button type="submit" id="uploadBtn" class="btn-upload" disabled>Upload</button>
             <a href="<?= base_url('/tipe-produk/downloadTemplate') ?>">
                 <button type="button" class="btn-download">Download Template</button>
             </a>
         </div>
+
     </form>
     <p class="notice">*XLS file with a size less than 10 MB</p>
 
