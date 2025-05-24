@@ -395,9 +395,7 @@ class AnalisisDataController extends BaseController
             return redirect()->to('/analisis-data')->with('error', 'Data analisis tidak ditemukan.');
         }
 
-        // =====================
         // ITEMSET 1
-        // =====================
         $itemset1 = $itemset1Model->where('analisis_data_id', $id)->findAll();
         foreach ($itemset1 as &$row) {
             $product = $productModel->find($row['product_type_id']);
@@ -406,9 +404,7 @@ class AnalisisDataController extends BaseController
         }
         unset($row);
 
-        // =====================
         // ITEMSET 2
-        // =====================
         $itemset2 = $itemset2Model->where('analisis_data_id', $id)->findAll();
         foreach ($itemset2 as &$row) {
             $p1 = $productModel->find($row['product_type_id_1']);
@@ -418,9 +414,7 @@ class AnalisisDataController extends BaseController
         }
         unset($row);
 
-        // =====================
         // ITEMSET 3
-        // =====================
         $itemset3 = $itemset3Model->where('analisis_data_id', $id)->findAll();
         foreach ($itemset3 as &$row) {
             $p1 = $productModel->find($row['product_type_id_1']);
@@ -435,9 +429,7 @@ class AnalisisDataController extends BaseController
         }
         unset($row);
 
-        // =====================
         // ASSOCIATION RULES
-        // =====================
         $associationRules = $associationModel->where('analisis_data_id', $id)->findAll();
         $association2 = [];
         $association3 = [];
@@ -463,9 +455,7 @@ class AnalisisDataController extends BaseController
             }
         }
 
-        // =====================
         // Rekomendasi (rule terbaik dari asosiasi 2 item)
-        // =====================
         $bestRule = null;
         foreach ($association2 as $assoc) {
             if ($bestRule === null || $assoc['confidence'] > $bestRule['confidence']) {
@@ -473,9 +463,7 @@ class AnalisisDataController extends BaseController
             }
         }
 
-        // =====================
         // Render view
-        // =====================
         return view('analisis-data-detail', [
             'analisis' => $analisis,
             'itemset1' => $itemset1,
