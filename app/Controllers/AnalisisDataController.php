@@ -389,12 +389,15 @@ class AnalisisDataController extends BaseController
         $associationModel = new AssociationRuleModel();
         $productModel = new TipeProdukModel();
 
+        // Ambil data analisis
         $analisis = $analisisModel->find($id);
         if (!$analisis) {
             return redirect()->to('/analisis-data')->with('error', 'Data analisis tidak ditemukan.');
         }
 
-        // Itemset 1
+        // =====================
+        // ITEMSET 1
+        // =====================
         $itemset1 = $itemset1Model->where('analisis_data_id', $id)->findAll();
         foreach ($itemset1 as &$row) {
             $product = $productModel->find($row['product_type_id']);
@@ -403,7 +406,9 @@ class AnalisisDataController extends BaseController
         }
         unset($row);
 
-        // Itemset 2
+        // =====================
+        // ITEMSET 2
+        // =====================
         $itemset2 = $itemset2Model->where('analisis_data_id', $id)->findAll();
         foreach ($itemset2 as &$row) {
             $p1 = $productModel->find($row['product_type_id_1']);
@@ -413,7 +418,9 @@ class AnalisisDataController extends BaseController
         }
         unset($row);
 
-        // Itemset 3
+        // =====================
+        // ITEMSET 3
+        // =====================
         $itemset3 = $itemset3Model->where('analisis_data_id', $id)->findAll();
         foreach ($itemset3 as &$row) {
             $p1 = $productModel->find($row['product_type_id_1']);
@@ -428,13 +435,16 @@ class AnalisisDataController extends BaseController
         }
         unset($row);
 
-        // Association Rules
+        // =====================
+        // ASSOCIATION RULES
+        // =====================
         $associationRules = $associationModel->where('analisis_data_id', $id)->findAll();
         $association2 = [];
         $association3 = [];
 
         foreach ($associationRules as $rule) {
-            if ($rule['from_item_2'] == null) {
+            if (empty($rule['from_item_2'])) {
+                // Asosiasi 2 item
                 $from = $productModel->find($rule['from_item'])['name'] ?? '?';
                 $to   = $productModel->find($rule['to_item'])['name'] ?? '?';
                 $association2[] = [
@@ -442,6 +452,7 @@ class AnalisisDataController extends BaseController
                     'confidence' => $rule['confidence_percent']
                 ];
             } else {
+                // Asosiasi 3 item
                 $f1 = $productModel->find($rule['from_item'])['name'] ?? '?';
                 $f2 = $productModel->find($rule['from_item_2'])['name'] ?? '?';
                 $to = $productModel->find($rule['to_item'])['name'] ?? '?';
@@ -452,7 +463,9 @@ class AnalisisDataController extends BaseController
             }
         }
 
-        // Rekomendasi confidence tertinggi dari association2
+        // =====================
+        // Rekomendasi (rule terbaik dari asosiasi 2 item)
+        // =====================
         $bestRule = null;
         foreach ($association2 as $assoc) {
             if ($bestRule === null || $assoc['confidence'] > $bestRule['confidence']) {
@@ -460,6 +473,9 @@ class AnalisisDataController extends BaseController
             }
         }
 
+        // =====================
+        // Render view
+        // =====================
         return view('analisis-data-detail', [
             'analisis' => $analisis,
             'itemset1' => $itemset1,
@@ -470,6 +486,5 @@ class AnalisisDataController extends BaseController
             'recommendation' => $bestRule
         ]);
     }
-
 
 }

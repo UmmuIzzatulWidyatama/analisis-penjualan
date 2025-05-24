@@ -55,10 +55,10 @@
             <span><strong>Minimum Confidence:</strong> <?= esc($analisis['minimum_confidence']) ?>%</span>
         </div>
 
-        <?php if (!empty($rekomendasi)): ?>
+        <?php if (!empty($recommendation)): ?>
         <div class="recommend-box">
-            Berdasarkan hasil analisis, kombinasi terbaik adalah <strong><?= esc($rekomendasi['rule']) ?></strong>
-            dengan confidence <strong><?= esc($rekomendasi['confidence']) ?>%</strong>.
+            Berdasarkan hasil analisis, kombinasi terbaik adalah <strong><?= esc($recommendation['rule']) ?></strong>
+            dengan confidence <strong><?= esc($recommendation['confidence']) ?>%</strong>.
             Disarankan untuk fokus pada promosi atau strategi kombinasi produk ini.
         </div>
         <?php endif; ?>
