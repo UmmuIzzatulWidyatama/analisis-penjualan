@@ -133,8 +133,9 @@ class ItemsetController extends BaseController
 
         $analisisModel = new AnalisisDataModel();
         $associationModel = new AssociationRuleModel();
+        $productModel = new TipeProdukModel();
+
         $rules = $associationModel->where('analisis_data_id', $analisisId)->findAll();
-        
         $analisis = $analisisModel->find($analisisId);
         if (!$analisis) {
             return redirect()->to('/analisis/itemset1')->with('error', 'Data analisis tidak valid.');
@@ -142,10 +143,9 @@ class ItemsetController extends BaseController
 
         $minSupport = $analisis['minimum_support'];
         $minConfidence = $analisis['minimum_confidence'];
-        
-        // Ambil nama produk
-        $productModel = new TipeProdukModel(); // Model tipe produk
-        $productNames = $productModel->findAll(); // id => name mapping
+
+        // Buat mapping id produk ke nama produk
+        $productNames = $productModel->findAll();
         $nameMap = [];
         foreach ($productNames as $prod) {
             $nameMap[$prod['id']] = $prod['name'];
@@ -155,15 +155,37 @@ class ItemsetController extends BaseController
         $rules3 = [];
 
         foreach ($rules as $rule) {
-            if ($rule['from_item_2'] == null) {
-                $rule['from_item_name'] = $nameMap[$rule['from_item']] ?? $rule['from_item'];
-                $rule['to_item_name'] = $nameMap[$rule['to_item']] ?? $rule['to_item'];
-                $rules2[] = $rule;
+            // Skip jika item tidak valid
+            if (
+                empty($rule['from_item']) || $rule['from_item'] == 0 ||
+                empty($rule['to_item']) || $rule['to_item'] == 0
+            ) {
+                continue;
+            }
+
+            $from1 = $nameMap[$rule['from_item']] ?? null;
+            $to = $nameMap[$rule['to_item']] ?? null;
+
+            if (!$from1 || !$to) continue;
+
+            if (empty($rule['from_item_2']) || $rule['from_item_2'] == 0) {
+                // Asosiasi 2 item
+                $rules2[] = [
+                    'from_item_name' => $from1,
+                    'to_item_name' => $to,
+                    'confidence_percent' => $rule['confidence_percent'],
+                    'is_below_confidence_threshold' => $rule['is_below_confidence_threshold']
+                ];
             } else {
-                $rule['from_item_name'] = $nameMap[$rule['from_item']] ?? $rule['from_item'];
-                $rule['from_item_2_name'] = $nameMap[$rule['from_item_2']] ?? $rule['from_item_2'];
-                $rule['to_item_name'] = $nameMap[$rule['to_item']] ?? $rule['to_item'];
-                $rules3[] = $rule;
+                $from2 = $nameMap[$rule['from_item_2']] ?? null;
+                if (!$from2) continue;
+
+                $rules3[] = [
+                    'from_item_name' => $from1 . ' & ' . $from2,
+                    'to_item_name' => $to,
+                    'confidence_percent' => $rule['confidence_percent'],
+                    'is_below_confidence_threshold' => $rule['is_below_confidence_threshold']
+                ];
             }
         }
 
@@ -173,8 +195,8 @@ class ItemsetController extends BaseController
             'rules2' => $rules2,
             'rules3' => $rules3
         ]);
-        
     }
+
 
     public function kesimpulan()
     {
@@ -197,19 +219,22 @@ class ItemsetController extends BaseController
 
         // Ambil Top 5 Asosiasi 2 Item berdasarkan confidence tertinggi
         $topRules2 = $associationModel
-            ->where('analisis_data_id', $analisisId)
-            ->where('from_item_2 IS NULL', null, false)
-            ->orderBy('confidence_percent', 'DESC')
-            ->limit(5)
-            ->findAll();
+        ->where('analisis_data_id', $analisisId)
+        ->groupStart()
+            ->where('from_item_2', null)
+            ->orWhere('from_item_2', 0)
+        ->groupEnd()
+        ->orderBy('confidence_percent', 'DESC')
+        ->limit(5)
+        ->findAll();
 
         // Ambil Top 5 Asosiasi 3 Item berdasarkan confidence tertinggi
         $topRules3 = $associationModel
-            ->where('analisis_data_id', $analisisId)
-            ->where('from_item_2 IS NOT NULL', null, false)
-            ->orderBy('confidence_percent', 'DESC')
-            ->limit(5)
-            ->findAll();
+        ->where('analisis_data_id', $analisisId)
+        ->where('from_item_2 !=', 0)
+        ->orderBy('confidence_percent', 'DESC')
+        ->limit(5)
+        ->findAll();
 
         // Ambil rule terbaik dari semua asosiasi
         $bestRule = $associationModel

@@ -205,8 +205,8 @@
             <tbody>
                 <?php foreach ($rules3 as $rule): ?>
                     <tr style="<?= $rule['is_below_confidence_threshold'] ? 'background-color: #f8d7da;' : '' ?>">
-                        <td><?= esc($rule['from_item_name']) ?> & <?= esc($rule['from_item_2_name']) ?> → <?= esc($rule['to_item_name']) ?></td>
-                        <td><?= esc($rule['confidence_percent']) ?>%</td>
+                    <td><?= esc($rule['from_item_name']) ?> → <?= esc($rule['to_item_name']) ?></td>    
+                    <td><?= esc($rule['confidence_percent']) ?>%</td>
                     </tr>
                 <?php endforeach; ?>
             </tbody>
