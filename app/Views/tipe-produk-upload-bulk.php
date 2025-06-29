@@ -216,6 +216,7 @@
                 <thead>
                     <tr>
                         <th>Baris ke</th>
+                        <th>Kode Item</th>
                         <th>Nama Produk</th>
                         <th>Status</th>
                     </tr>
@@ -229,11 +230,13 @@
                     ?>
                         <tr class="<?= !$isValid ? 'invalid-row' : '' ?>">
                             <td><?= esc($r['row']) ?></td>
+                            <td><?= esc($r['kode_item'] ?? '-') ?></td>
                             <td><?= esc($r['name']) ?></td>
                             <td><?= esc($r['status']) ?></td>
                         </tr>
                         <?php if ($isValid): ?>
                             <input type="hidden" name="names[]" value="<?= esc($r['name']) ?>">
+                            <input type="hidden" name="kode_items[]" value="<?= esc($r['kode_item']) ?>">
                         <?php endif; ?>
                     <?php endforeach; ?>
                 </tbody>

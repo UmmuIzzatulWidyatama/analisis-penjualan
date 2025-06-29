@@ -138,23 +138,17 @@ class TipeProdukController extends BaseController
 
             foreach ($sheet as $index => $row) {
                 if ($index === 0) continue; // Skip header
-
-                // Skip jika seluruh kolom dalam baris kosong
                 if (empty(array_filter($row))) continue;
 
-                $rowNumber = $row[0];
-                $kodeItem = trim($row[1] ?? '');
-                $name = trim($row[2] ?? '');
-                $status = 'Siap disimpan';
+                $kodeItem = trim($row[0] ?? '');
+                $name     = trim($row[1] ?? '');
+                $status   = 'Siap disimpan';
 
-                // Validasi kosong
                 if (empty($kodeItem)) {
                     $status = 'Kode item tidak boleh kosong';
                 } elseif (in_array($kodeItem, $kodeItemInFile)) {
-                    // Duplikat di file
                     $status = 'Kode item duplikat di file';
                 } else {
-                    // Cek di database
                     $exists = $model
                         ->groupStart()
                             ->where('name', $name)
@@ -167,11 +161,10 @@ class TipeProdukController extends BaseController
                     }
                 }
 
-                // Masukkan ke array untuk cek duplikat di file
                 $kodeItemInFile[] = $kodeItem;
 
                 $results[] = [
-                    'row'       => $rowNumber,
+                    'row'       => $index + 1,
                     'kode_item' => $kodeItem,
                     'name'      => $name,
                     'status'    => $status,
