@@ -38,6 +38,7 @@ class TipeProdukController extends BaseController
         $model = new \App\Models\TipeProdukModel();
 
         $name = $this->request->getPost('name');
+        $kodeItem = $this->request->getPost('kode_item');
 
         // Validasi sederhana
         if (empty($name)) {
@@ -51,7 +52,8 @@ class TipeProdukController extends BaseController
         }
 
         $model->insert([
-            'name' => $name
+            'name' => $name,
+            'kode_item' => $kodeItem,
         ]);
 
         return redirect()->to('/tipe-produk')->with('success', 'Produk berhasil ditambahkan.');
@@ -97,6 +99,7 @@ class TipeProdukController extends BaseController
         $model = new \App\Models\TipeProdukModel();
 
         $name = $this->request->getPost('name');
+        $kodeItem = $this->request->getPost('kode_item');
 
         if (empty($name)) {
             return redirect()->back()->withInput()->with('error', 'Nama Produk wajib diisi.');
@@ -108,7 +111,10 @@ class TipeProdukController extends BaseController
             return redirect()->back()->withInput()->with('error', 'Nama Produk sudah ada, gunakan nama lain.');
         }
 
-        $model->update($id, ['name' => $name]);
+        $model->update($id, [
+            'name' => $name,
+            'kode_item' => $kodeItem
+        ]);
 
         return redirect()->to('/tipe-produk')->with('success', 'Produk berhasil diperbarui.');
     }
@@ -128,37 +134,47 @@ class TipeProdukController extends BaseController
             $sheet = $spreadsheet->getActiveSheet()->toArray();
             $model = new TipeProdukModel();
 
+            $kodeItemInFile = [];
+
             foreach ($sheet as $index => $row) {
-                if ($index === 0) continue; // skip header
+                if ($index === 0) continue; // Skip header
+
+                // Skip jika seluruh kolom dalam baris kosong
+                if (empty(array_filter($row))) continue;
 
                 $rowNumber = $row[0];
-                $name = trim($row[1]);
+                $kodeItem = trim($row[1] ?? '');
+                $name = trim($row[2] ?? '');
+                $status = 'Siap disimpan';
 
-                if (empty($name)) {
-                    $results[] = [
-                        'row' => $rowNumber,
-                        'name' => '',
-                        'status' => 'Nama tidak boleh kosong'
-                    ];
-                    continue;
+                // Validasi kosong
+                if (empty($kodeItem)) {
+                    $status = 'Kode item tidak boleh kosong';
+                } elseif (in_array($kodeItem, $kodeItemInFile)) {
+                    // Duplikat di file
+                    $status = 'Kode item duplikat di file';
+                } else {
+                    // Cek di database
+                    $exists = $model
+                        ->groupStart()
+                            ->where('name', $name)
+                            ->orWhere('kode_item', $kodeItem)
+                        ->groupEnd()
+                        ->first();
+
+                    if ($exists) {
+                        $status = 'Data sudah ada di database';
+                    }
                 }
 
-                // Cek apakah produk sudah ada di database
-                $exists = $model->where('name', $name)->first();
-
-                if ($exists) {
-                    $results[] = [
-                        'row' => $rowNumber,
-                        'name' => $name,
-                        'status' => 'Data sudah ada di database'
-                    ];
-                    continue;
-                }
+                // Masukkan ke array untuk cek duplikat di file
+                $kodeItemInFile[] = $kodeItem;
 
                 $results[] = [
-                    'row' => $rowNumber,
-                    'name' => $name,
-                    'status' => 'Siap disimpan'
+                    'row'       => $rowNumber,
+                    'kode_item' => $kodeItem,
+                    'name'      => $name,
+                    'status'    => $status,
                 ];
             }
         }
@@ -169,11 +185,17 @@ class TipeProdukController extends BaseController
     public function saveBulk()
     {
         $names = $this->request->getPost('names');
+        $kode_items = $this->request->getPost('kode_items');
         $model = new TipeProdukModel();
 
-        foreach ($names as $name) {
-            if (!empty($name)) {
-                $model->insert(['name' => $name]);
+        foreach ($names as $i => $name) {
+            $kode_item = $kode_items[$i];
+
+            if (!empty($name) && !empty($kode_item)) {
+                $model->insert([
+                    'name' => $name,
+                    'kode_item' => $kode_item
+                ]);
             }
         }
 

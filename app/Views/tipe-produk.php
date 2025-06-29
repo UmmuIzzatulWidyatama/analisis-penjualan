@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Halaman Tipe Produk</title>
+    <title>Halaman Produk</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -132,10 +132,8 @@
     <div class="navbar">
         <div class="navbar-menu">
             <a href="<?= base_url('rule') ?>">Rule</a>
-            <a href="<?= base_url('tipe-produk') ?>" class="active">Tipe Produk</a>
+            <a href="<?= base_url('tipe-produk') ?>" class="active">Produk</a>
             <a href="<?= base_url('transaksi') ?>">Transaksi</a>
-            <!-- <a href="<?= base_url('itemset') ?>">Itemset</a> -->
-            <!-- <a href="<?= base_url('asosiasi') ?>">Asosiasi</a> -->
             <a href="<?= base_url('analisis-data') ?>">Analisis Data</a>
         </div>
         <a href="<?= site_url('/logout') ?>" class="logout">Logout</a>
@@ -154,16 +152,17 @@
             </div>
         <?php endif; ?>
         
-    <!-- Konten untuk halaman tipe produk -->
-        <h1>Data Tipe Produk</h1>
+    <!-- Konten untuk halaman produk -->
+        <h1>Data Produk</h1>
 
-        <a href="<?= site_url('tipe-produk/add') ?>" class="add-button">Tambah Tipe Produk</a>
+        <a href="<?= site_url('tipe-produk/add') ?>" class="add-button">Tambah Produk</a>
         <a href="<?= site_url('tipe-produk/showUploadBulk') ?>" class="upload-button">Upload Bulk</a>
         <table>
             <thead>
                 <tr>
                     <th>ID</th>
-                    <th>Tipe Produk</th>
+                    <th>Kode Item</th>
+                    <th>Produk</th>
                     <th>Aksi</th>
                 </tr>
             </thead>
@@ -172,6 +171,7 @@
                     <?php foreach ($product_types as $product): ?>
                         <tr>
                             <td><?= esc($product['id']) ?></td>
+                            <td><?= esc($product['kode_item']) ?></td>
                             <td><?= esc($product['name']) ?></td>
                             <td>
                                 <a href="<?= site_url('/tipe-produk/edit/' . $product['id']) ?>" class="btn-edit">Ubah</a>
@@ -181,7 +181,7 @@
                     <?php endforeach; ?>
                 <?php else: ?>
                     <tr>
-                        <td colspan="3">Tidak ada data.</td>
+                        <td colspan="4">Tidak ada data.</td>
                     </tr>
                 <?php endif; ?>
             </tbody>

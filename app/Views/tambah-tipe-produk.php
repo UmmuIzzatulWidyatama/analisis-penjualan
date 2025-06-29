@@ -129,10 +129,9 @@
     <div class="navbar">
         <div class="navbar-menu">
             <a href="<?= base_url('rule') ?>">Rule</a>
-            <a href="<?= base_url('tipe-produk') ?>" class="active">Tipe Produk</a>
+            <a href="<?= base_url('tipe-produk') ?>" class="active">Produk</a>
             <a href="<?= base_url('transaksi') ?>">Transaksi</a>
-            <a href="<?= base_url('itemset') ?>">Itemset</a>
-            <a href="<?= base_url('asosiasi') ?>">Asosiasi</a>
+            <a href="<?= base_url('analisis-data') ?>">Analisis Data</a>
         </div>
         <a href="<?= site_url('/logout') ?>" class="logout">Logout</a>
     </div>
@@ -148,6 +147,10 @@
 
             <form action="<?= site_url('/tipe-produk/save') ?>" method="post">
                 <?= csrf_field() ?>
+                <div class="form-group">
+                    <label for="kode_item">Kode Item <span class="required">*</span></label>
+                    <input type="text" id="kode_item" name="kode_item" required>
+                </div>
                 <div class="form-group">
                     <label for="name">Nama Produk <span class="required">*</span></label>
                     <input type="text" id="name" name="name" required>

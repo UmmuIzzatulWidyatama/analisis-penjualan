@@ -154,7 +154,7 @@
     <div class="navbar">
         <div class="navbar-menu">
             <a href="<?= base_url('rule') ?>">Rule</a>
-            <a href="<?= base_url('tipe-produk') ?>">Tipe Produk</a>
+            <a href="<?= base_url('tipe-produk') ?>">Produk</a>
             <a href="<?= base_url('transaksi') ?>" class="active">Transaksi</a>
             <a href="<?= base_url('analisis-data') ?>">Analisis Data</a>
         </div>
@@ -180,7 +180,7 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="product_select">Tipe Produk <span class="required">*</span></label>
+                    <label for="product_select">Produk <span class="required">*</span></label>
                     <div style="display: flex; gap: 10px;">
                         <select id="product_select">
                             <option value="">-- Pilih Produk --</option>
@@ -196,7 +196,7 @@
                     <thead>
                         <tr>
                             <th>No</th>
-                            <th>Tipe Produk</th>
+                            <th>Produk</th>
                             <th>Aksi</th>
                         </tr>
                     </thead>
@@ -254,7 +254,7 @@
 
         function validateForm() {
             if (selectedProducts.length === 0) {
-                alert('Silakan tambahkan minimal 1 tipe produk sebelum menyimpan transaksi.');
+                alert('Silakan tambahkan minimal 1 produk sebelum menyimpan transaksi.');
                 return false;
             }
             return true;

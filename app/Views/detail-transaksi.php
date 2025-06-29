@@ -112,7 +112,7 @@
     <div class="navbar">
         <div class="navbar-menu">
             <a href="<?= base_url('rule') ?>">Rule</a>
-            <a href="<?= base_url('tipe-produk') ?>">Tipe Produk</a>
+            <a href="<?= base_url('tipe-produk') ?>">Produk</a>
             <a href="<?= base_url('transaksi') ?>" class="active">Transaksi</a>
             <a href="<?= base_url('analisis-data') ?>">Analisis Data</a>
         </div>
@@ -130,7 +130,7 @@
             <thead>
                 <tr>
                     <th>No</th>
-                    <th>Tipe Produk</th>
+                    <th>Produk</th>
                 </tr>
             </thead>
             <tbody>

@@ -36,7 +36,7 @@
     <div class="navbar">
         <div class="navbar-menu">
             <a href="<?= base_url('rule') ?>">Rule</a>
-            <a href="<?= base_url('tipe-produk') ?>">Tipe Produk</a>
+            <a href="<?= base_url('tipe-produk') ?>">Produk</a>
             <a href="<?= base_url('transaksi') ?>">Transaksi</a>
             <a href="<?= base_url('analisis-data') ?>" class="active">Analisis Data</a>
         </div>
