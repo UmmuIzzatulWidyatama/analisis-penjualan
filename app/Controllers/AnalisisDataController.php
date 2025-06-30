@@ -72,11 +72,13 @@ class AnalisisDataController extends BaseController
         $endDate = $this->request->getPost('end_date');
         $description = $this->request->getPost('description');
         
-        // Hitung jumlah hari analisis
-        $start = new \DateTime($startDate);
-        $end = new \DateTime($endDate);
-        $interval = $start->diff($end);
-        $totalTransaksi = $interval->days + 1;
+        $transactionModel = new \App\Models\TransactionModel();
+        $totalTransaksi = $transactionModel
+            ->select('nomor_transaksi')
+            ->where('sale_date >=', $startDate)
+            ->where('sale_date <=', $endDate)
+            ->groupBy('nomor_transaksi')
+            ->countAllResults();
 
         $ruleModel = new RuleModel();
         $supportRule = $ruleModel->where('name', 'Minimum Support')->first();
@@ -455,7 +457,7 @@ class AnalisisDataController extends BaseController
             }
         }
 
-        // Rekomendasi (rule terbaik dari asosiasi 2 item)
+        // Rule terbaik dari asosiasi 2 item
         $bestRule = null;
         foreach ($association2 as $assoc) {
             if ($bestRule === null || $assoc['confidence'] > $bestRule['confidence']) {

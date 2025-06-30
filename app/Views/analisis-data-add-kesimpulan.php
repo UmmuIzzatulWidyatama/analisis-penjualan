@@ -295,7 +295,7 @@
         </div>
 
         <div class="form-actions">
-            <a href="<?= base_url('analisis-data') ?>" class="btn btn-secondary">Kembali ke Analisis</a>
+            <a href="<?= base_url('analisis-data') ?>" class="btn btn-secondary">Kembali ke halaman list</a>
             <a href="<?= base_url('analisis-data/add') ?>" class="btn">Mulai Analisis Baru</a>
         </div>
     </div>

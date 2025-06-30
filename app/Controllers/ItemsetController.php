@@ -51,8 +51,9 @@ class ItemsetController extends BaseController
             return redirect()->to('/analisis-data')->with('error', 'Data analisis tidak ditemukan.');
         }
         $data['minSupport'] = $analisis['minimum_support'];
+        $data['transactionCount'] = $analisis['transaction_count'];
 
-        return view('analisis-data-add-itemset1', $data);
+        return view('analisis-data-add-itemset1', $data); 
     }
 
     public function itemset2()
@@ -72,8 +73,9 @@ class ItemsetController extends BaseController
             return redirect()->to('/analisis/itemset1')->with('error', 'Data analisis tidak valid.');
         }
 
-        $minSupport = $analisis['minimum_support'];
-        $itemsets = $itemset2Model
+        $data['minSupport'] = $analisis['minimum_support'];
+        $data['transactionCount'] = $analisis['transaction_count'];
+        $data['itemsets'] = $itemset2Model
             ->select("CONCAT(pt1.name, ' & ', pt2.name) as item_name, 
                         itemset_2.support_count, 
                         itemset_2.support_percent")
@@ -82,10 +84,7 @@ class ItemsetController extends BaseController
             ->where('itemset_2.analisis_data_id', $analisisId)
             ->findAll();
 
-        return view('analisis-data-add-itemset2', [
-            'itemsets' => $itemsets,
-            'minSupport' => $minSupport
-        ]);
+        return view('analisis-data-add-itemset2', $data);
     }
 
     public function itemset3()
@@ -105,8 +104,9 @@ class ItemsetController extends BaseController
             return redirect()->to('/analisis/itemset1')->with('error', 'Data analisis tidak valid.');
         }
 
-        $minSupport = $analisis['minimum_support'];
-        $itemsets = $itemset3Model
+        $data['minSupport'] = $analisis['minimum_support'];
+        $data['transactionCount'] = $analisis['transaction_count'];
+        $data['itemsets'] = $itemset3Model
             ->select("CONCAT(pt1.name, ' & ', pt2.name, ' & ', pt3.name) as item_name, 
                         itemset_3.support_count, 
                         itemset_3.support_percent")
@@ -116,10 +116,7 @@ class ItemsetController extends BaseController
             ->where('itemset_3.analisis_data_id', $analisisId)
             ->findAll();
 
-        return view('analisis-data-add-itemset3', [
-            'itemsets' => $itemsets,
-            'minSupport' => $minSupport
-        ]);
+        return view('analisis-data-add-itemset3', $data);
     }
 
     public function asosiasi()

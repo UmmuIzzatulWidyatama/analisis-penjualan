@@ -70,17 +70,21 @@ class TipeProdukController extends BaseController
             return redirect()->to('/tipe-produk')->with('error', 'Produk tidak ditemukan.');
         }
 
-        // 2. Cek apakah produk sedang digunakan di tabel lain (misalnya itemset_1)
-        $isUsed = $db->table('itemset_1')->where('product_type_id', $id)->countAllResults();
+        // 2. Cek apakah produk digunakan di tabel itemset_1
+        $usedInItemset1 = $db->table('itemset_1')->where('product_type_id', $id)->countAllResults();
 
-        if ($isUsed > 0) {
-            return redirect()->to('/tipe-produk')->with('error', 'Produk tidak bisa dihapus karena sudah digunakan dalam data lain.');
+        // 3. Cek apakah produk digunakan di tabel transaction_details
+        $usedInTransactionDetails = $db->table('transaction_details')->where('product_type_id', $id)->countAllResults();
+
+        if ($usedInItemset1 > 0 || $usedInTransactionDetails > 0) {
+            return redirect()->to('/tipe-produk')->with('error', 'Produk tidak bisa dihapus karena sedang digunakan dalam data transaksi atau analisis.');
         }
 
-        // 3. Hapus data jika aman
+        // 4. Hapus data jika aman
         $model->delete($id);
         return redirect()->to('/tipe-produk')->with('success', 'Produk berhasil dihapus.');
     }
+
 
     public function edit($id)
     {
