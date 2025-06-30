@@ -108,7 +108,7 @@
         }
     </style>
 </head>
-<body>
+<body> 
     <div class="navbar">
         <div class="navbar-menu">
             <a href="<?= base_url('rule') ?>">Rule</a>
@@ -122,7 +122,10 @@
     <div class="content">
         <h1>Detail Data Transaksi</h1>
 
-        <label for="sale_date">Tanggal Penjualan</label>
+        <label for="nomor_transaksi">Nomor Transaksi</label>
+        <input type="text" id="nomor_transaksi" value="<?= esc($transaction['nomor_transaksi']) ?>" readonly>
+
+        <label for="sale_date">Tanggal Transaksi</label>
         <input type="text" id="sale_date" value="<?= esc($transaction['sale_date']) ?>" readonly>
 
         <label>List Produk</label>

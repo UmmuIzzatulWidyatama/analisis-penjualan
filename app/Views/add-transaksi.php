@@ -148,6 +148,14 @@
             color: #ef4444;
             margin-left: 4px;
         }
+        input[type="text"].form-control {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 14px;
+            margin-bottom: 16px;
+        }
     </style>
 </head>
 <body>
@@ -173,9 +181,14 @@
 
             <form action="<?= site_url('/transaksi/save') ?>" method="post" onsubmit="return validateForm()">
                 <?= csrf_field() ?>
+
+                <div class="form-group">
+                    <label for="nomor_transaksi">Nomor Transaksi <span class="required">*</span></label>
+                    <input type="text" class="form-control" name="nomor_transaksi" required>
+                </div>
                 
                 <div class="form-group">
-                    <label for="sale_date">Tanggal Penjualan <span class="required">*</span></label>
+                    <label for="sale_date">Tanggal Transaksi <span class="required">*</span></label>
                     <input type="date" id="sale_date" name="sale_date" required>
                 </div>
 

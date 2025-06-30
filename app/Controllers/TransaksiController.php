@@ -42,10 +42,12 @@ class TransaksiController extends BaseController
 
             // Gabungkan data transaksi dan daftar produk
             $data[] = [
-                'id' => $transaction['id'],
-                'sale_date' => $transaction['sale_date'],
-                'products' => implode(', ', $productNames), // Gabungkan nama produk dengan koma
+                'id'              => $transaction['id'],
+                'sale_date'       => $transaction['sale_date'],
+                'nomor_transaksi' => $transaction['nomor_transaksi'], // tambahkan ini
+                'products'        => implode(', ', $productNames),
             ];
+
         }
 
         return view('transaksi', ['transactions' => $data]); // Kirim data ke view
@@ -72,6 +74,7 @@ class TransaksiController extends BaseController
         $transactionModel = new \App\Models\TransactionModel();
 
         $sale_date = $this->request->getPost('sale_date');
+        $nomor_transaksi = $this->request->getPost('nomor_transaksi');
         $product_type_ids = $this->request->getPost('product_type_ids'); // array of product_type_id
 
         // Validasi input
@@ -82,7 +85,11 @@ class TransaksiController extends BaseController
         $db->transStart();
 
         // Simpan transaksi utama
-        $transactionModel->insert(['sale_date' => $sale_date]);
+        $transactionModel->insert([
+            'sale_date' => $sale_date,
+            'nomor_transaksi' => $nomor_transaksi
+        ]);
+
         $transaction_id = $transactionModel->getInsertID();
 
         // Simpan detail produk
@@ -171,28 +178,25 @@ class TransaksiController extends BaseController
             $existingCombinations = [];
             $fileCombinations = [];
 
-            // Ambil kombinasi transaksi+produk yang sudah ada di database
+            // Cek kombinasi duplikat yang sudah ada di database
             foreach ($transactionModel->findAll() as $tx) {
-                $details = $transactionDetailModel->where('transaction_id', $tx['id'])->findAll();
-                foreach ($details as $detail) {
-                    $product = $productModel->find($detail['product_type_id']);
-                    if ($product) {
-                        $key = $tx['sale_date'] . '|' . $product['name'];
-                        $existingCombinations[$key] = true;
-                    }
+                 if (!empty($tx['nomor_transaksi'])) {
+                    $existingCombinations[$tx['nomor_transaksi']] = true;
                 }
             }
 
             foreach ($rows as $index => $row) {
                 if ($index === 0) continue; // skip header
+                if (empty($row[0]) && empty($row[1]) && empty($row[2])) continue; // skip empty rows
 
-                $rowNumber = $row[0];
-                $productName = trim($row[2]);
-                $isValid = true;
-                $statusMessage = 'Siap disimpan';
+                $nomorTransaksi   = trim($row[0]); // kolom A
+                $productName      = trim($row[2]); // kolom C
+                $isValid          = true;
+                $statusMessage    = 'Siap disimpan';
                 $saleDateFormatted = '';
 
-                $cell = $sheet->getCellByColumnAndRow(2, $index + 1); // kolom B
+                // Tanggal Penjualan
+                $cell = $sheet->getCellByColumnAndRow(2, $index + 1); // kolom B (index mulai dari 1)
                 $dataType = $cell->getDataType();
 
                 if ($dataType === \PhpOffice\PhpSpreadsheet\Cell\DataType::TYPE_NUMERIC) {
@@ -209,49 +213,32 @@ class TransaksiController extends BaseController
                     }
                 }
 
-                // Check tanggal minimal & maksimal
-                if ($isValid) {
-                    $dateCheck = new \DateTime($saleDateFormatted);
-                    $minDate = new \DateTime('2000-01-01');
-                    $maxDate = new \DateTime(); // current date
-                    if ($dateCheck < $minDate || $dateCheck > $maxDate) {
-                        $isValid = false;
-                        $statusMessage = 'Tanggal penjualan tidak valid';
-                    }
+                if (empty($nomorTransaksi)) {
+                    $isValid = false;
+                    $statusMessage = 'Nomor transaksi kosong';
                 }
 
-                // Check produk aktif
+                // Validasi produk
                 $product = $productModel->where('name', $productName)->first();
                 if (!$product) {
                     $isValid = false;
                     $statusMessage = 'Nama produk tidak ditemukan';
-                } elseif (isset($product['is_active']) && !$product['is_active']) {
-                    $isValid = false;
-                    $statusMessage = 'Produk tidak aktif';
                 }
 
-                // Check duplikat di file
-                $fileKey = $saleDateFormatted . '|' . $productName;
-                if (isset($fileCombinations[$fileKey])) {
-                    $isValid = false;
-                    $statusMessage = 'Duplikat di file upload';
-                } else {
-                    $fileCombinations[$fileKey] = true;
-                }
+                // Duplikat
 
-                // Check duplikat di database
-                if (isset($existingCombinations[$fileKey])) {
+                if (isset($existingCombinations[$nomorTransaksi])) {
                     $isValid = false;
-                    $statusMessage = 'Data sudah ada di database';
+                    $statusMessage = 'Nomor transaksi sudah ada di database';
                 }
 
                 $results[] = [
-                    'row'            => $rowNumber,
-                    'sale_date'      => $saleDateFormatted,
-                    'product_name'   => $productName,
-                    'product_type_id'=> $product['id'] ?? null,
-                    'status'         => $statusMessage,
-                    'is_valid'       => $isValid,
+                    'nomor_transaksi'   => $nomorTransaksi,
+                    'sale_date'         => $saleDateFormatted,
+                    'product_name'      => $productName,
+                    'product_type_id'   => $product['id'] ?? null,
+                    'status'            => $statusMessage,
+                    'is_valid'          => $isValid,
                 ];
             }
 
@@ -260,7 +247,6 @@ class TransaksiController extends BaseController
 
         return view('transaksi-upload-bulk', ['results' => $results]);
     }
-
     
     public function saveBulk()
     {
@@ -269,30 +255,32 @@ class TransaksiController extends BaseController
         $transactionDetailModel = new \App\Models\TransactionDetailModel();
         $productModel = new \App\Models\TipeProdukModel();
 
-        $sale_dates = $this->request->getPost('sale_dates');  // array of dates
-        $product_names = $this->request->getPost('product_names');  // array of product names
+        $nomor_transaksis = $this->request->getPost('nomor_transaksis');
+        $sale_dates = $this->request->getPost('sale_dates');
+        $product_names = $this->request->getPost('product_names');
 
-        if (empty($sale_dates) || empty($product_names)) {
+        if (empty($nomor_transaksis) || empty($sale_dates) || empty($product_names)) {
             return redirect()->back()->with('error', 'Tidak ada data valid untuk disimpan.');
         }
 
         $db->transStart();
 
         foreach ($sale_dates as $index => $sale_date) {
-            $product_name = $product_names[$index];
+            $product_name     = $product_names[$index];
+            $nomor_transaksi  = $nomor_transaksis[$index];
 
-            // Cari ID produk dari nama
             $product = $productModel->where('name', $product_name)->first();
-            if (!$product) continue; // skip jika produk tidak ditemukan
+            if (!$product) continue;
 
-            // Simpan transaksi utama
-            $transactionModel->insert(['sale_date' => $sale_date]);
+            $transactionModel->insert([
+                'sale_date'        => $sale_date,
+                'nomor_transaksi'  => $nomor_transaksi,
+            ]);
             $transaction_id = $transactionModel->getInsertID();
 
-            // Simpan detail produk
             $transactionDetailModel->insert([
-                'transaction_id' => $transaction_id,
-                'product_type_id' => $product['id']
+                'transaction_id'   => $transaction_id,
+                'product_type_id'  => $product['id']
             ]);
         }
 

@@ -149,8 +149,9 @@
             <thead>
                 <tr>
                     <th>ID</th>
-                    <th>Daftar Penjualan</th>
-                    <th>Tanggal Penjualan</th>
+                    <th>Nomor Transaksi</th>
+                    <th>Tanggal Transaksi</th>
+                    <th>Daftar Produk</th>
                     <th>Aksi</th>
                 </tr>
             </thead>
@@ -159,8 +160,9 @@
                     <?php foreach ($transactions as $transaction): ?>
                         <tr>
                             <td><?= esc($transaction['id']) ?></td>
-                            <td><?= esc($transaction['products']) ?></td>
+                            <td><?= esc($transaction['nomor_transaksi']) ?></td>
                             <td><?= esc($transaction['sale_date']) ?></td>
+                            <td><?= esc($transaction['products']) ?></td>
                             <td>
                                 <a href="<?= site_url('/transaksi/detail/' . $transaction['id']) ?>" class="btn">Detail</a>
                                 <a href="<?= site_url('/transaksi/delete/' . $transaction['id']) ?>" class="btn btn-delete" onclick="return confirm('Yakin ingin menghapus transaksi ini?')">Hapus</a>
@@ -169,7 +171,7 @@
                     <?php endforeach; ?>
                 <?php else: ?>
                     <tr>
-                        <td colspan="4">Tidak ada data.</td>
+                        <td colspan="5">Tidak ada data.</td>
                     </tr>
                 <?php endif; ?>
             </tbody>

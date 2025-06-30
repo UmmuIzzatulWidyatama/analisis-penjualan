@@ -198,7 +198,7 @@
             <table>
                 <thead>
                     <tr>
-                        <th>Baris Ke</th>
+                        <th>Nomor Transaksi</th>
                         <th>Tanggal Penjualan</th>
                         <th>Nama Produk</th>
                         <th>Status</th>
@@ -207,12 +207,13 @@
                 <tbody>
                     <?php foreach ($results as $row): ?>
                         <tr class="<?= $row['status'] !== 'Siap disimpan' ? 'invalid' : '' ?>">
-                            <td><?= esc($row['row']) ?></td>
+                            <td><?= esc($row['nomor_transaksi']) ?></td>
                             <td><?= esc($row['sale_date']) ?></td>
                             <td><?= esc($row['product_name']) ?></td>
                             <td><?= esc($row['status']) ?></td>
                         </tr>
                         <?php if ($row['is_valid']): ?>
+                            <input type="hidden" name="nomor_transaksis[]" value="<?= esc($row['nomor_transaksi']) ?>">
                             <input type="hidden" name="sale_dates[]" value="<?= esc($row['sale_date']) ?>">
                             <input type="hidden" name="product_names[]" value="<?= esc($row['product_name']) ?>">
                         <?php else: ?>
