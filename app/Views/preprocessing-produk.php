@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Upload Bulk Produk</title>
+    <title>Preprocessing Produk</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
     <style>
         body {
@@ -193,69 +193,26 @@
 </div>
 
 <div class="content">
-    <h1>Upload Bulk Produk</h1>
+    <h1>Preprocessing Produk</h1>
 
-    <form action="<?= base_url('/tipe-produk/uploadBulk') ?>" method="post" enctype="multipart/form-data">
+    <form action="<?= base_url('/tipe-produk/uploadPreprocessing') ?>" method="post" enctype="multipart/form-data">
         <div class="upload-section">
-            <label>Upload Template</label>
+            <label>Upload File</label>
             <input type="file" id="fileInput" name="file" accept=".xlsx" onchange="checkFileSelected()">
         </div>
         <div class="button-group">
             <button type="submit" id="uploadBtn" class="btn-upload" disabled>Upload</button>
         </div>
-
     </form>
-    <p class="notice">*XLS file with a size less than 10 MB</p>
 
-    <?php if (!empty($results)): ?>
-        <form action="<?= base_url('/tipe-produk/saveBulk') ?>" method="post">
-            <table>
-                <thead>
-                    <tr>
-                        <th>Baris ke</th>
-                        <th>Kode Item</th>
-                        <th>Nama Produk</th>
-                        <th>Status</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php
-                    $allValid = true;
-                    foreach ($results as $r):
-                        $isValid = $r['status'] === 'Siap disimpan'; 
-                        if (!$isValid) $allValid = false;
-                    ?>
-                        <tr class="<?= !$isValid ? 'invalid-row' : '' ?>">
-                            <td><?= esc($r['row']) ?></td>
-                            <td><?= esc($r['kode_item'] ?? '-') ?></td>
-                            <td><?= esc($r['name']) ?></td>
-                            <td><?= esc($r['status']) ?></td>
-                        </tr>
-                        <?php if ($isValid): ?>
-                            <input type="hidden" name="names[]" value="<?= esc($r['name']) ?>">
-                            <input type="hidden" name="kode_items[]" value="<?= esc($r['kode_item']) ?>">
-                        <?php endif; ?>
-                    <?php endforeach; ?>
-                </tbody>
-            </table>
+    <script>
+    function checkFileSelected() {
+        const fileInput = document.getElementById('fileInput');
+        const uploadBtn = document.getElementById('uploadBtn');
+        uploadBtn.disabled = fileInput.files.length === 0;
+    }
+    </script>
 
-            <div class="action-buttons">
-                <a href="<?= base_url('/tipe-produk') ?>">
-                    <button type="button" class="back">Kembali</button>
-                </a>
-                <button type="submit" class="save" <?= $allValid ? '' : 'disabled' ?>>Simpan</button>
-            </div>
-        </form>
-    <?php endif; ?>
-</div>
-
-<script>
-function checkFileSelected() {
-    const fileInput = document.getElementById('fileInput');
-    const uploadBtn = document.getElementById('uploadBtn');
-    uploadBtn.disabled = fileInput.files.length === 0;
-}
-</script>
 
 </body>
 </html>

@@ -156,7 +156,9 @@
         <h1>Data Produk</h1>
 
         <a href="<?= site_url('tipe-produk/add') ?>" class="add-button">Tambah Produk</a>
+        <a href="<?= site_url('tipe-produk/showPreprocessing') ?>" class="upload-button">Preprocessing data produk</a>
         <a href="<?= site_url('tipe-produk/showUploadBulk') ?>" class="upload-button">Upload Bulk</a>
+        
         <table>
             <thead>
                 <tr>

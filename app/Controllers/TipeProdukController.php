@@ -125,6 +125,13 @@ class TipeProdukController extends BaseController
 
     public function showUploadBulk()
     {
+        $session = session();
+
+        // Cek apakah pengguna sudah login
+        if (!$session->get('logged_in')) {
+            return redirect()->to('/login')->with('error', 'Anda harus login terlebih dahulu.');
+        }
+         
         return view('tipe-produk-upload-bulk');
     }
 
@@ -139,6 +146,7 @@ class TipeProdukController extends BaseController
             $model = new TipeProdukModel();
 
             $kodeItemInFile = [];
+            $rowNumber = 1;
 
             foreach ($sheet as $index => $row) {
                 if ($index === 0) continue; // Skip header
@@ -168,13 +176,14 @@ class TipeProdukController extends BaseController
                 $kodeItemInFile[] = $kodeItem;
 
                 $results[] = [
-                    'row'       => $index + 1,
+                    'row'       => $rowNumber++, // <- diincrement manual
                     'kode_item' => $kodeItem,
                     'name'      => $name,
                     'status'    => $status,
                 ];
             }
-        }
+
+        } 
 
         return view('tipe-produk-upload-bulk', ['results' => $results]);
     }
