@@ -44,4 +44,4 @@ $routes->get('/analisis-data/asosiasi', 'ItemsetController::asosiasi'); //asosia
 $routes->get('/analisis-data/lift', 'ItemsetController::lift'); //lift ratio
 $routes->get('/analisis-data/kesimpulan', 'ItemsetController::kesimpulan'); //kesimpulan
 $routes->get('/analisis-data/delete/(:num)', 'AnalisisDataController::delete/$1'); //delete analisis data
-$routes->get('/analisis-data/detail/(:num)', 'AnalisisDataController::detail/$1'); // tampilkan form detail               
+$routes->get('/analisis-data/download/(:num)', 'AnalisisDataController::download/$1'); // download file to pdf               

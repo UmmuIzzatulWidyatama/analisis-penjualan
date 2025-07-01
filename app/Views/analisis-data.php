@@ -151,7 +151,7 @@
                             <td><?= esc($data['end_date']) ?></td>
                             <td><?= esc($data['description']) ?></td>
                             <td>
-                                <a href="<?= base_url('analisis-data/detail/' . $data['id']) ?>" class="btn">Detail</a>
+                                <a href="<?= base_url('analisis-data/download/' . $data['id']) ?>" class="btn">Download Report</a>
                                 <a href="<?= site_url('/analisis-data/delete/' . $data['id']) ?>" class="btn-delete" onclick="return confirm('Yakin ingin menghapus produk ini?');">Hapus</a>
                             </td>
                         </tr>

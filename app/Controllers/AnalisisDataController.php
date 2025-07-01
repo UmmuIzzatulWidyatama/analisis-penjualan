@@ -10,6 +10,8 @@ use App\Models\Itemset2Model;
 use App\Models\Itemset3Model;
 use App\Models\TipeProdukModel;
 use CodeIgniter\Controller;
+use Dompdf\Dompdf;
+use Dompdf\Options;
 
 
 class AnalisisDataController extends BaseController
@@ -382,99 +384,170 @@ class AnalisisDataController extends BaseController
 
     }
 
-    public function detail($id)
+    public function download($id)
     {
-        $analisisModel = new AnalisisDataModel();
-        $itemset1Model = new Itemset1Model();
-        $itemset2Model = new Itemset2Model();
-        $itemset3Model = new Itemset3Model();
-        $associationModel = new AssociationRuleModel();
-        $productModel = new TipeProdukModel();
+        // Inisialisasi Model
+        $analisisModel = new \App\Models\AnalisisDataModel();
+        $associationModel = new \App\Models\AssociationRuleModel();
+        $productTypeModel = new \App\Models\TipeProdukModel();
+        $itemset1Model = new \App\Models\Itemset1Model();
 
         // Ambil data analisis
-        $analisis = $analisisModel->find($id);
-        if (!$analisis) {
-            return redirect()->to('/analisis-data')->with('error', 'Data analisis tidak ditemukan.');
+        $analisisData = $analisisModel->find($id);
+        if (!$analisisData) {
+            return redirect()->to('/analisis-data')->with('error', 'Data tidak ditemukan.');
         }
 
-        // ITEMSET 1
-        $itemset1 = $itemset1Model->where('analisis_data_id', $id)->findAll();
-        foreach ($itemset1 as &$row) {
-            $product = $productModel->find($row['product_type_id']);
-            $row['product_name'] = $product['name'] ?? 'Unknown';
-            $row['is_below_threshold'] = $row['is_below_threshold'] ?? 0;
-        }
-        unset($row);
+        // Ambil semua asosiasi
+        $allRules = $associationModel->where('analisis_data_id', $id)->findAll();
 
-        // ITEMSET 2
-        $itemset2 = $itemset2Model->where('analisis_data_id', $id)->findAll();
-        foreach ($itemset2 as &$row) {
-            $p1 = $productModel->find($row['product_type_id_1']);
-            $p2 = $productModel->find($row['product_type_id_2']);
-            $row['product_names'] = ($p1['name'] ?? '?') . ' & ' . ($p2['name'] ?? '?');
-            $row['is_below_threshold'] = $row['is_below_threshold'] ?? 0;
-        }
-        unset($row);
+        // Ambil Top 5 Asosiasi 2 Item
+        $topRules2 = $associationModel
+            ->where('analisis_data_id', $id)
+            ->groupStart()
+                ->where('from_item_2', null)
+                ->orWhere('from_item_2', 0)
+            ->groupEnd()
+            ->orderBy('confidence_percent', 'DESC')
+            ->limit(5)
+            ->findAll();
 
-        // ITEMSET 3
-        $itemset3 = $itemset3Model->where('analisis_data_id', $id)->findAll();
-        foreach ($itemset3 as &$row) {
-            $p1 = $productModel->find($row['product_type_id_1']);
-            $p2 = $productModel->find($row['product_type_id_2']);
-            $p3 = $productModel->find($row['product_type_id_3']);
-            $row['item'] = implode(' & ', array_filter([
-                $p1['name'] ?? null,
-                $p2['name'] ?? null,
-                $p3['name'] ?? null
-            ]));
-            $row['is_below_threshold'] = $row['is_below_threshold'] ?? 0;
-        }
-        unset($row);
+        // Ambil Top 5 Asosiasi 3 Item
+        $topRules3 = $associationModel
+            ->where('analisis_data_id', $id)
+            ->where('from_item_2 !=', 0)
+            ->orderBy('confidence_percent', 'DESC')
+            ->limit(5)
+            ->findAll();
 
-        // ASSOCIATION RULES
-        $associationRules = $associationModel->where('analisis_data_id', $id)->findAll();
+        // Ambil rule terbaik
+        $bestRule = $associationModel
+            ->where('analisis_data_id', $id)
+            ->orderBy('confidence_percent', 'DESC')
+            ->first();
+
+        // Ambil nama produk
+        $productTypeIds = [];
+        foreach (array_merge($topRules2, $topRules3, [$bestRule]) as $rule) {
+            if ($rule) {
+                $productTypeIds[] = $rule['from_item'];
+                if (!empty($rule['from_item_2'])) {
+                    $productTypeIds[] = $rule['from_item_2'];
+                }
+                $productTypeIds[] = $rule['to_item'];
+            }
+        }
+
+        $productTypes = [];
+        if (!empty($productTypeIds)) {
+            $products = $productTypeModel->whereIn('id', array_unique($productTypeIds))->findAll();
+            foreach ($products as $p) {
+                $productTypes[$p['id']] = $p['name'];
+            }
+        }
+
+        // Format Top Rules 2 Item
         $association2 = [];
+        foreach ($topRules2 as $rule) {
+            $association2[] = [
+                'from_item_name' => '{' . ($productTypes[$rule['from_item']] ?? '?') . '}',
+                'to_item_name'   => '{' . ($productTypes[$rule['to_item']] ?? '?') . '}',
+                'confidence_percent' => $rule['confidence_percent']
+            ];
+        }
+
+        // Format Top Rules 3 Item
         $association3 = [];
+        foreach ($topRules3 as $rule) {
+            $from1 = $productTypes[$rule['from_item']] ?? '?';
+            $from2 = $productTypes[$rule['from_item_2']] ?? '?';
+            $to = $productTypes[$rule['to_item']] ?? '?';
 
-        foreach ($associationRules as $rule) {
-            if (empty($rule['from_item_2'])) {
-                // Asosiasi 2 item
-                $from = $productModel->find($rule['from_item'])['name'] ?? '?';
-                $to   = $productModel->find($rule['to_item'])['name'] ?? '?';
-                $association2[] = [
-                    'rule' => "$from → $to",
-                    'confidence' => $rule['confidence_percent']
-                ];
+            $association3[] = [
+                'from_item_name' => '{' . $from1 . ', ' . $from2 . '}',
+                'to_item_name' => '{' . $to . '}',
+                'confidence_percent' => $rule['confidence_percent']
+            ];
+        }
+
+        // Format Best Rule
+        $recommendation = null;
+        if ($bestRule) {
+            $from1 = $productTypes[$bestRule['from_item']] ?? '?';
+            $to = $productTypes[$bestRule['to_item']] ?? '?';
+
+            if (!empty($bestRule['from_item_2'])) {
+                $from2 = $productTypes[$bestRule['from_item_2']] ?? '?';
+                $from = '{' . $from1 . ', ' . $from2 . '}';
             } else {
-                // Asosiasi 3 item
-                $f1 = $productModel->find($rule['from_item'])['name'] ?? '?';
-                $f2 = $productModel->find($rule['from_item_2'])['name'] ?? '?';
-                $to = $productModel->find($rule['to_item'])['name'] ?? '?';
-                $association3[] = [
-                    'rule' => "$f1 & $f2 → $to",
-                    'confidence' => $rule['confidence_percent']
-                ];
+                $from = '{' . $from1 . '}';
             }
+
+            $recommendation = [
+                'from_item_name' => $from,
+                'to_item_name' => '{' . $to . '}',
+                'confidence_percent' => $bestRule['confidence_percent']
+            ];
         }
 
-        // Rule terbaik dari asosiasi 2 item
-        $bestRule = null;
-        foreach ($association2 as $assoc) {
-            if ($bestRule === null || $assoc['confidence'] > $bestRule['confidence']) {
-                $bestRule = $assoc;
+        // Hitung Lift Ratio
+        $transactionCount = $analisisData['transaction_count'];
+        $validRules = $associationModel
+            ->where('analisis_data_id', $id)
+            ->where('confidence_percent >=', $analisisData['minimum_confidence'])
+            ->findAll();
+
+        $liftResults = [];
+        foreach ($validRules as $rule) {
+            $fromItems = [$rule['from_item']];
+            if (!empty($rule['from_item_2'])) {
+                $fromItems[] = $rule['from_item_2'];
             }
+
+            $toItem = $rule['to_item'];
+
+            $supportTo = $itemset1Model
+                ->where('analisis_data_id', $id)
+                ->where('product_type_id', $toItem)
+                ->first();
+
+            if (!$supportTo || $supportTo['support_count'] == 0) {
+                continue;
+            }
+
+            $supportToValue = $supportTo['support_count'] / $transactionCount;
+            $lift = $supportToValue > 0 ? $rule['confidence_percent'] / 100 / $supportToValue : 0;
+
+            $fromText = implode(' & ', array_map(fn($i) => $productTypes[$i] ?? '?', $fromItems));
+            $toText = $productTypes[$toItem] ?? '?';
+
+            $liftResults[] = [
+                'rule' => '{' . $fromText . '} -> {' . $toText . '}',
+                'lift' => number_format($lift, 2)
+            ];
         }
 
-        // Render view
-        return view('analisis-data-detail', [
-            'analisis' => $analisis,
-            'itemset1' => $itemset1,
-            'itemset2' => $itemset2,
-            'itemset3' => $itemset3,
+        // Kirim ke View
+        $data = [
+            'analisis' => $analisisData,
             'association2' => $association2,
             'association3' => $association3,
-            'recommendation' => $bestRule
-        ]);
+            'recommendation' => $recommendation,
+            'liftResults' => $liftResults
+        ];
+
+        $html = view('analisis-data-report-pdf', $data);
+
+        // Generate PDF
+        $options = new Options();
+        $options->set('isRemoteEnabled', true);
+        $dompdf = new Dompdf($options);
+        $dompdf->loadHtml($html);
+        $dompdf->setPaper('A4', 'portrait');
+        $dompdf->render();
+
+        return $dompdf->stream("report-analisis-{$id}.pdf", ['Attachment' => true]);
     }
+
 
 }
