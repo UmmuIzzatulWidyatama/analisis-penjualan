@@ -194,6 +194,67 @@ class ItemsetController extends BaseController
         ]);
     }
 
+    public function lift()
+    {
+        $session = session();
+        $analisisId = $session->get('analisis_id');
+
+        if (!$analisisId) {
+            return redirect()->to('/analisis-data')->with('error', 'Data analisis tidak ditemukan.');
+        }
+
+        $analisisModel = new \App\Models\AnalisisDataModel();
+        $associationModel = new \App\Models\AssociationRuleModel();
+        $itemset1Model = new \App\Models\Itemset1Model();
+        $productModel = new \App\Models\TipeProdukModel();
+
+        $analisis = $analisisModel->find($analisisId);
+        $transactionCount = $analisis['transaction_count'];
+        $minConfidence = $analisis['minimum_confidence'];
+
+        $rules = $associationModel
+            ->where('analisis_data_id', $analisisId)
+            ->where('confidence_percent >=', $minConfidence)
+            ->findAll();
+
+        $products = $productModel->findAll();
+        $productNames = array_column($products, 'name', 'id');
+
+        $lifts = [];
+
+        foreach ($rules as $rule) {
+            $fromItems = [$rule['from_item']];
+            if (!empty($rule['from_item_2']) && $rule['from_item_2'] != 0) {
+                $fromItems[] = $rule['from_item_2'];
+            }
+
+            $toItem = $rule['to_item'];
+
+            $supportTo = $itemset1Model
+                ->where('analisis_data_id', $analisisId)
+                ->where('product_type_id', $toItem)
+                ->first();
+
+            if (!$supportTo || $supportTo['support_count'] == 0) {
+                continue;
+            }
+
+            $supportToValue = $supportTo['support_count'] / $transactionCount;
+
+            $lift = $supportToValue > 0 ? $rule['confidence_percent'] / 100 / $supportToValue : 0;
+
+            $fromText = implode(' & ', array_map(fn($id) => $productNames[$id] ?? 'Unknown', $fromItems));
+            $toText = $productNames[$toItem] ?? 'Unknown';
+
+            $lifts[] = [
+                'rule' => '{' . $fromText . '} → {' . $toText . '}',
+                'lift' => number_format($lift, 2)
+            ];
+        }
+
+        return view('analisis-data-add-lift', ['lifts' => $lifts]);
+    }
+
 
     public function kesimpulan()
     {

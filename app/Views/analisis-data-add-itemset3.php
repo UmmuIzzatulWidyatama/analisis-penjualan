@@ -172,6 +172,11 @@
             <div class="progress-line"></div>
             <div class="progress-step">
                 <div class="progress-circle">6</div>
+                Lift Ratio
+            </div>
+            <div class="progress-line"></div>
+            <div class="progress-step">
+                <div class="progress-circle">7</div>
                 Kesimpulan
             </div>
         </div>

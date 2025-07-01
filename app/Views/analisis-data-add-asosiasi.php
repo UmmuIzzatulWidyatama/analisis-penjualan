@@ -172,6 +172,11 @@
             <div class="progress-line"></div>
             <div class="progress-step">
                 <div class="progress-circle">6</div>
+                Lift Ratio
+            </div>
+            <div class="progress-line"></div>
+            <div class="progress-step">
+            <div class="progress-circle">7</div>
                 Kesimpulan
             </div>
         </div>
@@ -214,7 +219,7 @@
 
         <div class="form-actions">
             <a href="<?= base_url('analisis-data/add') ?>" class="btn btn-secondary">Kembali</a>
-            <a href="<?= base_url('analisis-data/kesimpulan') ?>" class="btn">Selanjutnya</a>
+            <a href="<?= base_url('analisis-data/lift') ?>" class="btn">Selanjutnya</a>
         </div>
         
     </div>

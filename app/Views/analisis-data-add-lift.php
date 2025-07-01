@@ -123,6 +123,14 @@
         .btn:hover {
             opacity: 0.9;
         }
+        .alert-info {
+            padding: 10px;
+            background-color: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeeba;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
     </style>
 </head>
 <body>
@@ -148,7 +156,7 @@
             </div>
             <div class="progress-line"></div>
             <div class="progress-step">
-                <div class="progress-circle active">3</div>
+                <div class="progress-circle ">3</div>
                 Itemset 2
             </div>
             <div class="progress-line"></div>
@@ -163,7 +171,7 @@
             </div>
             <div class="progress-line"></div>
             <div class="progress-step">
-                <div class="progress-circle">6</div>
+                <div class="progress-circle active">6</div>
                 Lift Ratio
             </div>
             <div class="progress-line"></div>
@@ -173,33 +181,33 @@
             </div>
         </div>
 
-        <h1>Itemset 2</h1>
-        <p>Total Transaksi: <?= esc($transactionCount) ?></p>
-        <p>Minimum Support: <?= esc($minSupport) ?>%</p>
-
+        <h1>Lift Ratio</h1>
         <table>
             <thead>
                 <tr>
-                    <th>Itemset</th>
-                    <th>Frekuensi</th>
-                    <th>Support</th>
+                    <th>Rule</th>
+                    <th>Lift</th>
                 </tr>
             </thead>
             <tbody>
-                <?php foreach ($itemsets as $item): ?>
-                    <tr style="<?= $item['support_percent'] < $minSupport ? 'background-color: #f8d7da;' : '' ?>">
-                        <td><?= esc($item['item_name']) ?></td>
-                        <td><?= esc($item['support_count']) ?></td>
-                        <td><?= esc($item['support_percent']) ?>%</td>
-                    </tr>
-                <?php endforeach; ?>
+                <?php if (!empty($lifts)): ?>
+                    <?php foreach ($lifts as $rule): ?>
+                        <tr>
+                            <td><?= esc($rule['rule']) ?></td>
+                            <td><?= esc($rule['lift']) ?></td>
+                        </tr>
+                    <?php endforeach; ?>
+                <?php else: ?>
+                    <tr><td colspan="2">Belum ada data Lift Ratio.</td></tr>
+                <?php endif; ?>
             </tbody>
         </table>
 
         <div class="form-actions">
             <a href="<?= base_url('analisis-data/add') ?>" class="btn btn-secondary">Kembali</a>
-            <a href="<?= base_url('analisis-data/itemset3') ?>" class="btn">Selanjutnya</a>
+            <a href="<?= base_url('analisis-data/kesimpulan') ?>" class="btn">Selanjutnya</a>
         </div>
+        
     </div>
 </body>
 </html>
