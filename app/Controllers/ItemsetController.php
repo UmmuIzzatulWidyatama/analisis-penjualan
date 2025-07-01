@@ -76,9 +76,9 @@ class ItemsetController extends BaseController
         $data['minSupport'] = $analisis['minimum_support'];
         $data['transactionCount'] = $analisis['transaction_count'];
         $data['itemsets'] = $itemset2Model
-            ->select("CONCAT(pt1.name, ' & ', pt2.name) as item_name, 
-                        itemset_2.support_count, 
-                        itemset_2.support_percent")
+            ->select("CONCAT('{', pt1.name, ', ', pt2.name, '}') as item_name, 
+                    itemset_2.support_count, 
+                    itemset_2.support_percent")
             ->join('product_types pt1', 'pt1.id = itemset_2.product_type_id_1')
             ->join('product_types pt2', 'pt2.id = itemset_2.product_type_id_2')
             ->where('itemset_2.analisis_data_id', $analisisId)
@@ -107,9 +107,9 @@ class ItemsetController extends BaseController
         $data['minSupport'] = $analisis['minimum_support'];
         $data['transactionCount'] = $analisis['transaction_count'];
         $data['itemsets'] = $itemset3Model
-            ->select("CONCAT(pt1.name, ' & ', pt2.name, ' & ', pt3.name) as item_name, 
-                        itemset_3.support_count, 
-                        itemset_3.support_percent")
+            ->select("CONCAT('{', pt1.name, ', ', pt2.name, ', ', pt3.name, '}') as item_name, 
+                    itemset_3.support_count, 
+                    itemset_3.support_percent")
             ->join('product_types pt1', 'pt1.id = itemset_3.product_type_id_1')
             ->join('product_types pt2', 'pt2.id = itemset_3.product_type_id_2')
             ->join('product_types pt3', 'pt3.id = itemset_3.product_type_id_3')
@@ -168,8 +168,8 @@ class ItemsetController extends BaseController
             if (empty($rule['from_item_2']) || $rule['from_item_2'] == 0) {
                 // Asosiasi 2 item
                 $rules2[] = [
-                    'from_item_name' => $from1,
-                    'to_item_name' => $to,
+                    'from_item_name' => '{' . $from1 . '}',
+                    'to_item_name' => '{' . $to . '}',
                     'confidence_percent' => $rule['confidence_percent'],
                     'is_below_confidence_threshold' => $rule['is_below_confidence_threshold']
                 ];
@@ -178,8 +178,8 @@ class ItemsetController extends BaseController
                 if (!$from2) continue;
 
                 $rules3[] = [
-                    'from_item_name' => $from1 . ' & ' . $from2,
-                    'to_item_name' => $to,
+                    'from_item_name' => '{' . $from1 . ', ' . $from2 . '}',
+                    'to_item_name' => '{' . $to . '}',
                     'confidence_percent' => $rule['confidence_percent'],
                     'is_below_confidence_threshold' => $rule['is_below_confidence_threshold']
                 ];
@@ -255,8 +255,7 @@ class ItemsetController extends BaseController
         return view('analisis-data-add-lift', ['lifts' => $lifts]);
     }
 
-
-    public function kesimpulan()
+    public function kesimpulan() 
     {
         $session = session();
         $analisisId = $session->get('analisis_id');
@@ -268,6 +267,7 @@ class ItemsetController extends BaseController
         $analisisModel = new \App\Models\AnalisisDataModel();
         $associationModel = new \App\Models\AssociationRuleModel();
         $productTypeModel = new \App\Models\TipeProdukModel();
+        $itemset1Model = new \App\Models\Itemset1Model();
 
         $analisisData = $analisisModel->find($analisisId);
 
@@ -277,22 +277,22 @@ class ItemsetController extends BaseController
 
         // Ambil Top 5 Asosiasi 2 Item berdasarkan confidence tertinggi
         $topRules2 = $associationModel
-        ->where('analisis_data_id', $analisisId)
-        ->groupStart()
-            ->where('from_item_2', null)
-            ->orWhere('from_item_2', 0)
-        ->groupEnd()
-        ->orderBy('confidence_percent', 'DESC')
-        ->limit(5)
-        ->findAll();
+            ->where('analisis_data_id', $analisisId)
+            ->groupStart()
+                ->where('from_item_2', null)
+                ->orWhere('from_item_2', 0)
+            ->groupEnd()
+            ->orderBy('confidence_percent', 'DESC')
+            ->limit(5)
+            ->findAll();
 
         // Ambil Top 5 Asosiasi 3 Item berdasarkan confidence tertinggi
         $topRules3 = $associationModel
-        ->where('analisis_data_id', $analisisId)
-        ->where('from_item_2 !=', 0)
-        ->orderBy('confidence_percent', 'DESC')
-        ->limit(5)
-        ->findAll();
+            ->where('analisis_data_id', $analisisId)
+            ->where('from_item_2 !=', 0)
+            ->orderBy('confidence_percent', 'DESC')
+            ->limit(5)
+            ->findAll();
 
         // Ambil rule terbaik dari semua asosiasi
         $bestRule = $associationModel
@@ -306,7 +306,7 @@ class ItemsetController extends BaseController
         foreach (array_merge($topRules2, $topRules3, [$bestRule]) as $rule) {
             if ($rule) {
                 $productTypeIds[] = $rule['from_item'];
-                if (isset($rule['from_item_2'])) {
+                if (isset($rule['from_item_2']) && $rule['from_item_2'] != 0) {
                     $productTypeIds[] = $rule['from_item_2'];
                 }
                 $productTypeIds[] = $rule['to_item'];
@@ -324,29 +324,89 @@ class ItemsetController extends BaseController
         }
 
         // Tambahkan nama produk ke rules
-        foreach ($topRules2 as &$rule) {
-            $rule['from_item_name'] = $productTypes[$rule['from_item']] ?? 'Unknown';
-            $rule['to_item_name'] = $productTypes[$rule['to_item']] ?? 'Unknown';
+        $tempRules2 = [];
+        foreach ($topRules2 as $rule) {
+            $from = $productTypes[$rule['from_item']] ?? 'Unknown';
+            $to = $productTypes[$rule['to_item']] ?? 'Unknown';
+
+            $rule['from_item_name'] = '{' . $from . '}';
+            $rule['to_item_name'] = '{' . $to . '}';
+            $tempRules2[] = $rule;
         }
-        foreach ($topRules3 as &$rule) {
-            $rule['from_item_name'] = $productTypes[$rule['from_item']] ?? 'Unknown';
-            $rule['from_item_2_name'] = $productTypes[$rule['from_item_2']] ?? 'Unknown';
-            $rule['to_item_name'] = $productTypes[$rule['to_item']] ?? 'Unknown';
+        $topRules2 = $tempRules2;
+
+        $tempRules3 = [];
+        foreach ($topRules3 as $rule) {
+            $from1 = $productTypes[$rule['from_item']] ?? 'Unknown';
+            $from2 = $productTypes[$rule['from_item_2']] ?? 'Unknown';
+            $to = $productTypes[$rule['to_item']] ?? 'Unknown';
+
+            $rule['from_item_name'] = '{' . $from1 . ', ' . $from2 . '}';
+            $rule['to_item_name'] = '{' . $to . '}';
+            $tempRules3[] = $rule;
         }
+        $topRules3 = $tempRules3;
+
         if ($bestRule) {
-            $bestRule['from_item_name'] = $productTypes[$bestRule['from_item']] ?? 'Unknown';
-            $bestRule['to_item_name'] = $productTypes[$bestRule['to_item']] ?? 'Unknown';
-            if (isset($bestRule['from_item_2'])) {
-                $bestRule['from_item_2_name'] = $productTypes[$bestRule['from_item_2']] ?? 'Unknown';
+            $from1 = $productTypes[$bestRule['from_item']] ?? 'Unknown';
+            $to = $productTypes[$bestRule['to_item']] ?? 'Unknown';
+
+            if (isset($bestRule['from_item_2']) && $bestRule['from_item_2'] != 0) {
+                $from2 = $productTypes[$bestRule['from_item_2']] ?? 'Unknown';
+                $bestRule['from_item_name'] = '{' . $from1 . ', ' . $from2 . '}';
+            } else {
+                $bestRule['from_item_name'] = '{' . $from1 . '}';
             }
+
+            $bestRule['to_item_name'] = '{' . $to . '}';
+        }
+
+        // Hitung Lift Ratio hanya untuk rule yang lolos minimum confidence
+        $liftResults = [];
+        $transactionCount = $analisisData['transaction_count'];
+
+        $validRules = $associationModel
+            ->where('analisis_data_id', $analisisId)
+            ->where('confidence_percent >=', $analisisData['minimum_confidence'])
+            ->findAll();
+
+        foreach ($validRules as $rule) {
+            $fromItems = [$rule['from_item']];
+            if (!empty($rule['from_item_2']) && $rule['from_item_2'] != 0) {
+                $fromItems[] = $rule['from_item_2'];
+            }
+
+            $toItem = $rule['to_item'];
+
+            $supportTo = $itemset1Model
+                ->where('analisis_data_id', $analisisId)
+                ->where('product_type_id', $toItem)
+                ->first();
+
+            if (!$supportTo || $supportTo['support_count'] == 0) {
+                continue;
+            }
+
+            $supportToValue = $supportTo['support_count'] / $transactionCount;
+            $lift = $supportToValue > 0 ? $rule['confidence_percent'] / 100 / $supportToValue : 0;
+
+            $fromText = implode(' & ', array_map(fn($id) => $productTypes[$id] ?? 'Unknown', $fromItems));
+            $toText = $productTypes[$toItem] ?? 'Unknown';
+
+            $liftResults[] = [
+                'rule' => '{' . $fromText . '} → {' . $toText . '}',
+                'lift' => number_format($lift, 2)
+            ];
         }
 
         return view('analisis-data-add-kesimpulan', [
             'analisisData' => $analisisData,
             'topRules2' => $topRules2,
             'topRules3' => $topRules3,
-            'bestRule' => $bestRule
+            'bestRule' => $bestRule,
+            'liftResults' => $liftResults
         ]);
     }
+
 
 }

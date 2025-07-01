@@ -238,6 +238,30 @@
             <p>Berdasarkan hasil analisis, kombinasi terbaik adalah <strong><?= esc($bestRule['from_item_name']) ?> → <?= esc($bestRule['to_item_name']) ?></strong> dengan confidence <strong><?= esc($bestRule['confidence_percent']) ?>%</strong>. Disarankan untuk fokus pada promosi atau pengembangan strategi untuk kombinasi produk ini.</p>
         </div>
 
+        <h2>Lift Ratio</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Rule</th>
+                    <th>Lift</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php if (!empty($liftResults)): ?>
+                    <?php foreach ($liftResults as $lift): ?>
+                        <tr>
+                            <td><?= esc($lift['rule']) ?></td>
+                            <td><?= esc($lift['lift']) ?></td>
+                        </tr>
+                    <?php endforeach; ?>
+                <?php else: ?>
+                    <tr>
+                        <td colspan="2">Belum ada data Lift Ratio.</td>
+                    </tr>
+                <?php endif; ?>
+            </tbody>
+        </table>
+
         <h2>Top 5 Asosiasi 2 Item</h2>
         <div class="tab-container" id="tab-2item"> 
             <div class="tab-buttons">
@@ -290,7 +314,7 @@
                     <tbody>
                         <?php foreach ($topRules3 as $rule): ?>
                             <tr>
-                                <td><?= esc($rule['from_item_name']) ?> & <?= esc($rule['from_item_2_name']) ?> → <?= esc($rule['to_item_name']) ?></td>
+                                <td><?= esc($rule['from_item_name']) ?> → <?= esc($rule['to_item_name']) ?></td>
                                 <td><?= esc($rule['confidence_percent']) ?>%</td>
                             </tr>
                         <?php endforeach; ?>
@@ -355,9 +379,11 @@
 
         // Chart.js untuk Asosiasi 3 Item
         const ctx3 = document.getElementById('confidenceChart3').getContext('2d');
+
         const labels3 = <?= json_encode(array_map(function($r) {
-            return $r['from_item_name'] . ' & ' . $r['from_item_2_name'] . ' → ' . $r['to_item_name'];
+            return $r['from_item_name'] . ' → ' . $r['to_item_name'];
         }, $topRules3)) ?>;
+
         const data3 = <?= json_encode(array_map(function($r) {
             return $r['confidence_percent'];
         }, $topRules3)) ?>;
