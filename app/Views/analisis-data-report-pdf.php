@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Laporan Analisis Data</title>
+    <title>Djati Intan Barokah</title>
     <style>
         body {
             font-family: Arial, sans-serif;
