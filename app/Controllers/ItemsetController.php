@@ -42,7 +42,7 @@ class ItemsetController extends BaseController
             ->select('itemset_1.*, pt.name as item_name')
             ->join('product_types pt', 'pt.id = itemset_1.product_type_id')
             ->where('analisis_data_id', $analisisId)
-            ->orderBy('support_count', 'DESC')
+            ->orderBy('support_percent', 'DESC')
             ->findAll();
 
         // Ambil nilai minimum support dari analisis_data
@@ -52,6 +52,26 @@ class ItemsetController extends BaseController
         }
         $data['minSupport'] = $analisis['minimum_support'];
         $data['transactionCount'] = $analisis['transaction_count'];
+
+        // Ambil 3 item dengan support tertinggi
+        $topItems = array_slice($data['itemsets'], 0, 3);
+
+        $itemNames = array_map(function ($item) {
+            return $item['item_name'];
+        }, $topItems);
+
+        // Deskripsi
+        if (count($itemNames) >= 3) {
+            $deskripsi = "Itemset 1 menunjukkan produk individual yang sering muncul dalam transaksi. Produk seperti {$itemNames[0]}, {$itemNames[1]}, dan {$itemNames[2]} tergolong sering dibeli, sedangkan baris yang diberi berwarna merah tidak lolos threshold minimum support.";
+        } elseif (count($itemNames) === 2) {
+            $deskripsi = "Itemset 1 menunjukkan produk individual yang sering muncul dalam transaksi. Produk seperti {$itemNames[0]} dan {$itemNames[1]} tergolong sering dibeli.";
+        } elseif (count($itemNames) === 1) {
+            $deskripsi = "Itemset 1 menunjukkan produk individual yang sering muncul dalam transaksi. Produk {$itemNames[0]} tergolong sering dibeli.";
+        } else {
+            $deskripsi = "Belum ada produk yang memenuhi minimum support.";
+        }
+
+        $data['deskripsi'] = $deskripsi;
 
         return view('analisis-data-add-itemset1', $data); 
     }
@@ -82,7 +102,11 @@ class ItemsetController extends BaseController
             ->join('product_types pt1', 'pt1.id = itemset_2.product_type_id_1')
             ->join('product_types pt2', 'pt2.id = itemset_2.product_type_id_2')
             ->where('itemset_2.analisis_data_id', $analisisId)
+            ->orderBy('support_percent', 'DESC')
             ->findAll();
+
+        $data['deskripsi'] = "Itemset 2 menunjukkan pasangan produk yang sering dibeli bersama. Kombinasi yang lolos minimum support relevan untuk dianalisis lebih lanjut.";
+
 
         return view('analisis-data-add-itemset2', $data);
     }
@@ -114,7 +138,10 @@ class ItemsetController extends BaseController
             ->join('product_types pt2', 'pt2.id = itemset_3.product_type_id_2')
             ->join('product_types pt3', 'pt3.id = itemset_3.product_type_id_3')
             ->where('itemset_3.analisis_data_id', $analisisId)
+            ->orderBy('support_percent', 'DESC')
             ->findAll();
+
+        $data['deskripsi'] = "Itemset 3 menampilkan kombinasi tiga produk yang sering dibeli bersama. Kombinasi yang lolos minimum support, menunjukkan potensi tinggi untuk penempatan produk yang berdekatan.";
 
         return view('analisis-data-add-itemset3', $data);
     }
@@ -186,11 +213,49 @@ class ItemsetController extends BaseController
             }
         }
 
+        // Urutkan rules2 berdasarkan confidence_percent DESC
+        usort($rules2, function ($a, $b) {
+            return $b['confidence_percent'] <=> $a['confidence_percent'];
+        });
+
+        // Deskripsi asosiasi 2 item
+        if (!empty($rules2)) {
+            $topRule2 = $rules2[0]; // ambil aturan dengan confidence tertinggi
+
+            $deskripsi2 = "Aturan asosiasi 2 item menunjukkan hubungan dua produk yang sering dibeli bersama. ".
+                        "Pada kasus ini, {$topRule2['from_item_name']} → {$topRule2['to_item_name']} memiliki confidence " .
+                        number_format($topRule2['confidence_percent'], 2) . "%, artinya setiap membeli " .
+                        trim($topRule2['from_item_name'], '{}') . " juga membeli " .
+                        trim($topRule2['to_item_name'], '{}') . ".";
+        } else {
+            $deskripsi2 = "Belum terdapat aturan asosiasi 2 item yang lolos minimum confidence.";
+        }
+
+        // Urutkan rules3 berdasarkan confidence_percent DESC
+        usort($rules3, function ($a, $b) {
+            return $b['confidence_percent'] <=> $a['confidence_percent'];
+        });
+
+        // Deskripsi asosiasi 3 item
+        if (!empty($rules3)) {
+            $topRule3 = $rules3[0]; // aturan 3 item dengan confidence tertinggi
+
+            $deskripsi3 = "Aturan 3 item menunjukkan produk ketiga yang kemungkinan besar dibeli jika dua produk lainnya sudah dibeli. ".
+                        "Pada kasus ini, {$topRule3['from_item_name']} → {$topRule3['to_item_name']} dengan confidence " .
+                        number_format($topRule3['confidence_percent'], 2) . "% artinya setiap pembelian yang mencakup " .
+                        trim($topRule3['from_item_name'], '{}'). " juga selalu mencakup " .
+                        trim($topRule3['to_item_name'], '{}') . ".";
+        } else {
+            $deskripsi3 = "Belum terdapat aturan asosiasi 3 item yang lolos minimum confidence.";
+        }
+
         return view('analisis-data-add-asosiasi', [
             'minSupport' => $minSupport,
             'minConfidence' => $minConfidence,
             'rules2' => $rules2,
-            'rules3' => $rules3
+            'rules3' => $rules3,
+            'deskripsi2' => $deskripsi2,
+            'deskripsi3' => $deskripsi3
         ]);
     }
 
@@ -252,7 +317,26 @@ class ItemsetController extends BaseController
             ];
         }
 
-        return view('analisis-data-add-lift', ['lifts' => $lifts]);
+        // Ambil rule dengan lift tertinggi untuk deskripsi
+        $deskripsi = "Lift ratio menunjukkan kekuatan hubungan antar produk. Nilai > 1 berarti produk saling berkaitan secara positif.";
+
+        if (!empty($lifts)) {
+            // Ubah string lift jadi float agar bisa diurutkan
+            usort($lifts, function ($a, $b) {
+                return (float)$b['lift'] <=> (float)$a['lift'];
+            });
+
+            $top = $lifts[0];
+            $deskripsi .= " Pada kasus ini, {$top['rule']} dengan lift {$top['lift']} artinya " .
+                        trim(explode('→', $top['rule'])[1], ' {}') . " " .
+                        (number_format(((float)$top['lift'] - 1) * 100, 0)) . "% lebih mungkin dibeli jika konsumen sudah membeli " .
+                        trim(explode('→', $top['rule'])[0], ' {}') . ".";
+        }
+
+        return view('analisis-data-add-lift', [
+            'lifts' => $lifts,
+            'deskripsi' => $deskripsi
+        ]);
     }
 
     public function kesimpulan() 

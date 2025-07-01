@@ -131,6 +131,10 @@
             border-radius: 5px;
             margin-bottom: 20px;
         }
+        .insight-box {
+            background-color: #fff3cd;
+            border-left-color: #ffc107;
+        }
     </style>
 </head>
 <body>
@@ -182,6 +186,11 @@
         </div>
 
         <h1>Asosiasi 2 Item</h1>
+
+        <div class="insight-box">
+            <p><?= esc($deskripsi2) ?></p>
+        </div>
+
         <table>
             <thead>
                 <tr>
@@ -200,6 +209,10 @@
         </table>
 
         <h1>Asosiasi 3 Item</h1>
+        <div class="insight-box">
+            <p><?= esc($deskripsi3) ?></p>
+        </div>
+
         <table>
             <thead>
                 <tr>

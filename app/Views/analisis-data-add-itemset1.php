@@ -123,6 +123,10 @@
         .btn:hover {
             opacity: 0.9;
         }
+        .insight-box {
+            background-color: #fff3cd;
+            border-left-color: #ffc107;
+        }
     </style>
 </head>
 <body>
@@ -176,6 +180,10 @@
         <h1>Itemset 1</h1>
         <p>Total Transaksi: <?= esc($transactionCount) ?></p>
         <p>Minimum Support: <?= esc($minSupport) ?>%</p>
+        
+        <div class="insight-box">
+            <p><?= esc($deskripsi) ?></p>
+        </div>
 
         <table>
             <thead>

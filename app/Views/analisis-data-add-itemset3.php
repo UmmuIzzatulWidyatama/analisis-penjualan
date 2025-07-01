@@ -131,6 +131,10 @@
             border-radius: 5px;
             margin-bottom: 20px;
         }
+        .insight-box {
+            background-color: #fff3cd;
+            border-left-color: #ffc107;
+        }
     </style>
 </head>
 <body>
@@ -190,6 +194,10 @@
         <h1>Itemset 3</h1>
         <p>Total Transaksi: <?= esc($transactionCount) ?></p>
         <p>Minimum Support: <?= esc($minSupport) ?>%</p>
+
+        <div class="insight-box">
+            <p><?= esc($deskripsi) ?></p>
+        </div>
 
         <table>
             <thead>
