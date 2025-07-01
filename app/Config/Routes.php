@@ -29,10 +29,12 @@ $routes->get('/transaksi', 'TransaksiController::index'); //list page transaksi
 $routes->get('/transaksi/add', 'TransaksiController::add'); //show form add transaksi
 $routes->post('/transaksi/save', 'TransaksiController::save'); //simpan data transaksi
 $routes->get('/transaksi/delete/(:num)', 'TransaksiController::delete/$1'); //delete produk
-$routes->get('/transaksi/detail/(:num)', 'TransaksiController::detail/$1'); // tampilkan form detail               
+$routes->get('/transaksi/detail/(:num)', 'TransaksiController::detail/$1'); // tampilkan form detail           
+//preprocessing data transaksi
+$routes->get('/transaksi/showPreprocessing', 'PreprocessingTransaksiController::showPreprocessing'); // preprocessing data
+$routes->post('/transaksi/uploadPreprocessing', 'PreprocessingTransaksiController::uploadPreprocessing');     
 //bulk upload transaksi
 $routes->get('/transaksi/showUploadBulk', 'TransaksiController::showUploadBulk'); // tampilkan halaman upload bulk transaksi
-$routes->get('/transaksi/downloadTemplate', 'TransaksiController::downloadTemplate'); // download template upload bulk transaksi
 $routes->post('/transaksi/uploadBulk', 'TransaksiController::uploadBulk'); // upload bulk template excel
 $routes->post('/transaksi/saveBulk', 'TransaksiController::saveBulk'); //simpan bulk data ke database
 //analisis data

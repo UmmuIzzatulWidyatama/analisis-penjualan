@@ -157,11 +157,6 @@ class TransaksiController extends BaseController
         return view('transaksi-upload-bulk', ['results' => []]);
     }
 
-    public function downloadTemplate()
-    {
-        return $this->response->download(WRITEPATH . 'uploads/template-upload-transaksi.xlsx', null);
-    }
-
     public function uploadBulk()
     {
         $file = $this->request->getFile('file');
@@ -173,14 +168,10 @@ class TransaksiController extends BaseController
             $rows = $sheet->toArray();
             $productModel = new \App\Models\TipeProdukModel();
             $transactionModel = new \App\Models\TransactionModel();
-            $transactionDetailModel = new \App\Models\TransactionDetailModel();
 
             $existingCombinations = [];
-            $fileCombinations = [];
-
-            // Cek kombinasi duplikat yang sudah ada di database
             foreach ($transactionModel->findAll() as $tx) {
-                 if (!empty($tx['nomor_transaksi'])) {
+                if (!empty($tx['nomor_transaksi'])) {
                     $existingCombinations[$tx['nomor_transaksi']] = true;
                 }
             }
@@ -189,56 +180,55 @@ class TransaksiController extends BaseController
                 if ($index === 0) continue; // skip header
                 if (empty($row[0]) && empty($row[1]) && empty($row[2])) continue; // skip empty rows
 
-                $nomorTransaksi   = trim($row[0]); // kolom A
-                $productName      = trim($row[2]); // kolom C
-                $isValid          = true;
-                $statusMessage    = 'Siap disimpan';
+                $nomorTransaksi = trim($row[0]); // A - Nomor Transaksi
+                $tanggalCell    = $sheet->getCellByColumnAndRow(2, $index + 1); // B - Tanggal Transaksi
+                $kodeCell       = $sheet->getCellByColumnAndRow(3, $index + 1); // C - Kode Item
+
+                $kodeItem = trim((string) $kodeCell->getFormattedValue());
+                $kodeItem = str_replace(',', '', $kodeItem); // handle koma jika ada
+
+                $isValid        = true;
+                $statusMessage  = 'Siap disimpan';
                 $saleDateFormatted = '';
 
-                // Tanggal Penjualan
-                $cell = $sheet->getCellByColumnAndRow(2, $index + 1); // kolom B (index mulai dari 1)
-                $dataType = $cell->getDataType();
-
-                if ($dataType === \PhpOffice\PhpSpreadsheet\Cell\DataType::TYPE_NUMERIC) {
-                    $phpDate = \PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($cell->getValue());
-                    $saleDateFormatted = $phpDate->format('Y-m-d');
+                // Format Tanggal
+                $saleDateRaw = trim($tanggalCell->getFormattedValue());
+                $parsedDate = \DateTime::createFromFormat('d/m/Y', $saleDateRaw);
+                if (!$parsedDate) {
+                    $parsedDate = \DateTime::createFromFormat('Y-m-d', $saleDateRaw);
+                }
+                if ($parsedDate) {
+                    $saleDateFormatted = $parsedDate->format('Y-m-d');
                 } else {
-                    $saleDateRaw = trim($cell->getFormattedValue());
-                    $parsedDate = \DateTime::createFromFormat('d/m/Y', $saleDateRaw);
-                    if ($parsedDate) {
-                        $saleDateFormatted = $parsedDate->format('Y-m-d');
-                    } else {
-                        $isValid = false;
-                        $statusMessage = 'Format tanggal tidak valid';
-                    }
+                    $isValid = false;
+                    $statusMessage = 'Format tanggal tidak valid';
                 }
 
+                // Validasi kosong
                 if (empty($nomorTransaksi)) {
                     $isValid = false;
                     $statusMessage = 'Nomor transaksi kosong';
                 }
 
-                // Validasi produk
-                $product = $productModel->where('name', $productName)->first();
-                if (!$product) {
-                    $isValid = false;
-                    $statusMessage = 'Nama produk tidak ditemukan';
-                }
-
-                // Duplikat
-
+                // Validasi duplikat
                 if (isset($existingCombinations[$nomorTransaksi])) {
                     $isValid = false;
                     $statusMessage = 'Nomor transaksi sudah ada di database';
                 }
 
+                // Validasi kode item
+                $product = $productModel->where('kode_item', $kodeItem)->first();
+                if (!$product) {
+                    $isValid = false;
+                    $statusMessage = 'Kode item tidak ditemukan';
+                }
+
                 $results[] = [
-                    'nomor_transaksi'   => $nomorTransaksi,
-                    'sale_date'         => $saleDateFormatted,
-                    'product_name'      => $productName,
-                    'product_type_id'   => $product['id'] ?? null,
-                    'status'            => $statusMessage,
-                    'is_valid'          => $isValid,
+                    'nomor_transaksi' => $nomorTransaksi,
+                    'sale_date'       => $saleDateFormatted,
+                    'kode_item'       => $kodeItem,
+                    'status'          => $statusMessage,
+                    'is_valid'        => $isValid,
                 ];
             }
 
@@ -247,6 +237,7 @@ class TransaksiController extends BaseController
 
         return view('transaksi-upload-bulk', ['results' => $results]);
     }
+
     
     public function saveBulk()
     {
@@ -257,32 +248,36 @@ class TransaksiController extends BaseController
 
         $nomor_transaksis = $this->request->getPost('nomor_transaksis');
         $sale_dates = $this->request->getPost('sale_dates');
-        $product_names = $this->request->getPost('product_names');
+        $kode_items = $this->request->getPost('kode_items');
 
-        if (empty($nomor_transaksis) || empty($sale_dates) || empty($product_names)) {
+        if (empty($nomor_transaksis) || empty($sale_dates) || empty($kode_items)) {
             return redirect()->back()->with('error', 'Tidak ada data valid untuk disimpan.');
         }
 
         $db->transStart();
 
         foreach ($sale_dates as $index => $sale_date) {
-            $product_name     = $product_names[$index];
-            $nomor_transaksi  = $nomor_transaksis[$index];
+            $nomor_transaksi = $nomor_transaksis[$index];
+            $kode_item       = $kode_items[$index];
 
-            $product = $productModel->where('name', $product_name)->first();
+            // Cari produk berdasarkan kode item
+            $product = $productModel->where('kode', $kode_item)->first();
             if (!$product) continue;
 
+            // Simpan ke table transaksi
             $transactionModel->insert([
                 'sale_date'        => $sale_date,
                 'nomor_transaksi'  => $nomor_transaksi,
             ]);
             $transaction_id = $transactionModel->getInsertID();
 
+            // Simpan ke detail transaksi
             $transactionDetailModel->insert([
                 'transaction_id'   => $transaction_id,
                 'product_type_id'  => $product['id']
             ]);
         }
+
 
         $db->transComplete();
 

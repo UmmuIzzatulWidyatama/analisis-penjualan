@@ -70,7 +70,7 @@ class PreprocessingProdukController extends BaseController
             }
 
             // Output sebagai file download
-            $filename = 'preprocessed_produk.xlsx';
+            $filename = 'hasil_preprocessing_produk.xlsx';
             $writer = new Xlsx($output);
 
             // Headers untuk mendownload file

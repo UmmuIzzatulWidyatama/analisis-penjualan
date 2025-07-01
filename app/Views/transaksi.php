@@ -143,8 +143,11 @@
         <?php endif; ?>
         
         <h1>Data Transaksi</h1>
+        
         <a href="<?= base_url('transaksi/add') ?>" class="add-button">Tambah Data Transaksi</a>
+        <a href="<?= site_url('transaksi/showPreprocessing') ?>" class="upload-button">Preprocessing Data Transaksi</a>
         <a href="<?= site_url('transaksi/showUploadBulk') ?>" class="upload-button">Upload Bulk</a>
+
         <table>
             <thead>
                 <tr>
