@@ -328,8 +328,7 @@ class ItemsetController extends BaseController
 
             $top = $lifts[0];
             $deskripsi .= " Pada kasus ini, {$top['rule']} dengan lift {$top['lift']} artinya " .
-                        trim(explode('→', $top['rule'])[1], ' {}') . " " .
-                        (number_format(((float)$top['lift'] - 1) * 100, 0)) . "% lebih mungkin dibeli jika konsumen sudah membeli " .
+                        trim(explode('→', $top['rule'])[1], ' {}') . " " ."lebih mungkin dibeli jika konsumen sudah membeli " .
                         trim(explode('→', $top['rule'])[0], ' {}') . ".";
         }
 
@@ -352,12 +351,83 @@ class ItemsetController extends BaseController
         $associationModel = new \App\Models\AssociationRuleModel();
         $productTypeModel = new \App\Models\TipeProdukModel();
         $itemset1Model = new \App\Models\Itemset1Model();
+        $itemset2Model = new \App\Models\Itemset2Model();
+        $itemset3Model = new \App\Models\Itemset3Model();
 
         $analisisData = $analisisModel->find($analisisId);
 
         if (!$analisisData) {
             return redirect()->to('/analisis-data')->with('error', 'Data analisis tidak valid.');
         }
+
+        // Ambil Top 5 Itemset 1 berdasarkan support tertinggi
+        $topItemset1 = $itemset1Model
+            ->select('itemset_1.*, pt.name as item_name')
+            ->join('product_types pt', 'pt.id = itemset_1.product_type_id')
+            ->where('itemset_1.analisis_data_id', $analisisId)
+            ->orderBy('itemset_1.support_percent', 'DESC')
+            ->limit(5)
+            ->findAll();
+
+        // Ambil Top 5 Itemset 2 berdasarkan support tertinggi
+        $topItemset2Raw = $itemset2Model
+            ->where('analisis_data_id', $analisisId)
+            ->orderBy('support_percent', 'DESC')
+            ->limit(5)
+            ->findAll();
+        
+        // Ambil Top 5 Itemset 3 berdasarkan support tertinggi
+        $topItemset3Raw = $itemset3Model
+            ->where('analisis_data_id', $analisisId)
+            ->orderBy('support_percent', 'DESC')
+            ->limit(5)
+            ->findAll();
+
+        // Ambil semua id produk dari kombinasi 3 produk
+        $productIds = [];
+        foreach ($topItemset3Raw as $item) {
+            $productIds[] = $item['product_type_id_1'];
+            $productIds[] = $item['product_type_id_2'];
+            $productIds[] = $item['product_type_id_3'];
+        }
+        $productIds = array_unique($productIds);
+
+        // Ambil nama produk
+        $products = $productTypeModel->whereIn('id', $productIds)->findAll();
+        $productMap = array_column($products, 'name', 'id');
+
+        // Format hasil itemset 3
+        $topItemset3 = [];
+        foreach ($topItemset3Raw as $item) {
+            $topItemset3[] = [
+                'produk_1' => $productMap[$item['product_type_id_1']] ?? 'Unknown',
+                'produk_2' => $productMap[$item['product_type_id_2']] ?? 'Unknown',
+                'produk_3' => $productMap[$item['product_type_id_3']] ?? 'Unknown',
+                'support_percent' => $item['support_percent']
+            ];
+        }
+
+        // Ambil nama produk
+        $productIds = [];
+        foreach ($topItemset2Raw as $item) {
+            $productIds[] = $item['product_type_id_1'];
+            $productIds[] = $item['product_type_id_2'];
+        }
+        $productIds = array_unique($productIds);
+
+        $products = $productTypeModel->whereIn('id', $productIds)->findAll();
+        $productMap = array_column($products, 'name', 'id');
+
+        // Format hasil itemset 2
+        $topItemset2 = [];
+        foreach ($topItemset2Raw as $item) {
+            $topItemset2[] = [
+                'produk_1' => $productMap[$item['product_type_id_1']] ?? 'Unknown',
+                'produk_2' => $productMap[$item['product_type_id_2']] ?? 'Unknown',
+                'support_percent' => $item['support_percent']
+            ];
+        }
+
 
         // Ambil Top 5 Asosiasi 2 Item berdasarkan confidence tertinggi
         $topRules2 = $associationModel
@@ -418,6 +488,7 @@ class ItemsetController extends BaseController
             $tempRules2[] = $rule;
         }
         $topRules2 = $tempRules2;
+        $topRules2 = array_slice($tempRules2, 0, 5);
 
         $tempRules3 = [];
         foreach ($topRules3 as $rule) {
@@ -430,6 +501,7 @@ class ItemsetController extends BaseController
             $tempRules3[] = $rule;
         }
         $topRules3 = $tempRules3;
+        $topRules3 = array_slice($tempRules3, 0, 5);
 
         if ($bestRule) {
             $from1 = $productTypes[$bestRule['from_item']] ?? 'Unknown';
@@ -483,12 +555,19 @@ class ItemsetController extends BaseController
             ];
         }
 
+        usort($liftResults, function ($a, $b) {
+            return (float)$b['lift'] <=> (float)$a['lift'];
+        });
+
         return view('analisis-data-add-kesimpulan', [
             'analisisData' => $analisisData,
             'topRules2' => $topRules2,
             'topRules3' => $topRules3,
             'bestRule' => $bestRule,
-            'liftResults' => $liftResults
+            'liftResults' => $liftResults,
+            'topItemset1' => $topItemset1,
+            'topItemset2' => $topItemset2,
+            'topItemset3' => $topItemset3
         ]);
     }
 

@@ -185,7 +185,7 @@
             </div>
         </div>
 
-        <h1>Asosiasi 2 Item</h1>
+        <h1>Association Rules 2-Itemset</h1>
 
         <div class="insight-box">
             <p><?= esc($deskripsi2) ?></p>
@@ -208,7 +208,7 @@
             </tbody>
         </table>
 
-        <h1>Asosiasi 3 Item</h1>
+        <h1>Association Rules 3-Itemset</h1>
         <div class="insight-box">
             <p><?= esc($deskripsi3) ?></p>
         </div>

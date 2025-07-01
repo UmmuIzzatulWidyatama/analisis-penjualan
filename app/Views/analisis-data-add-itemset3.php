@@ -191,7 +191,7 @@
             </div>
         <?php endif; ?> 
 
-        <h1>Itemset 3</h1>
+        <h1>Frequent Itemset 3</h1>
         <p>Total Transaksi: <?= esc($transactionCount) ?></p>
         <p>Minimum Support: <?= esc($minSupport) ?>%</p>
 

@@ -177,7 +177,7 @@
             </div>
         </div>
 
-        <h1>Itemset 2</h1>
+        <h1>Frequent Itemset 2</h1>
         <p>Total Transaksi: <?= esc($transactionCount) ?></p>
         <p>Minimum Support: <?= esc($minSupport) ?>%</p>
 
