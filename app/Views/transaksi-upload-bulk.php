@@ -185,9 +185,6 @@
         </div>
         <div class="button-group">
             <button type="submit" id="uploadBtn" class="btn-upload" disabled>Upload</button>
-            <a href="<?= base_url('/transaksi/downloadTemplate') ?>">
-                <button type="button" class="btn-download">Download Template</button>
-            </a>
         </div>
     </form>
     <p class="notice">*XLS file with a size less than 10 MB</p>

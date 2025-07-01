@@ -238,7 +238,6 @@ class TransaksiController extends BaseController
         return view('transaksi-upload-bulk', ['results' => $results]);
     }
 
-    
     public function saveBulk()
     {
         $db = \Config\Database::connect();
@@ -256,28 +255,35 @@ class TransaksiController extends BaseController
 
         $db->transStart();
 
-        foreach ($sale_dates as $index => $sale_date) {
-            $nomor_transaksi = $nomor_transaksis[$index];
-            $kode_item       = $kode_items[$index];
+        $transaksiMap = []; // mapping nomor_transaksi => transaction_id
 
-            // Cari produk berdasarkan kode item
-            $product = $productModel->where('kode', $kode_item)->first();
-            if (!$product) continue;
+        foreach ($nomor_transaksis as $index => $nomor_transaksi) {
+            $sale_date  = $sale_dates[$index];
+            $kode_item  = $kode_items[$index];
 
-            // Simpan ke table transaksi
-            $transactionModel->insert([
-                'sale_date'        => $sale_date,
-                'nomor_transaksi'  => $nomor_transaksi,
-            ]);
-            $transaction_id = $transactionModel->getInsertID();
+            // Cari produk
+            $product = $productModel->where('kode_item', $kode_item)->first();
+            if (!$product) {
+                log_message('error', "Kode item tidak ditemukan: " . $kode_item);
+                continue;
+            }
 
-            // Simpan ke detail transaksi
+            // Cek apakah transaksi sudah dibuat
+            if (!isset($transaksiMap[$nomor_transaksi])) {
+                // Buat transaksi baru
+                $transactionModel->insert([
+                    'sale_date'        => $sale_date,
+                    'nomor_transaksi'  => $nomor_transaksi,
+                ]);
+                $transaksiMap[$nomor_transaksi] = $transactionModel->getInsertID();
+            }
+
+            // Simpan detail
             $transactionDetailModel->insert([
-                'transaction_id'   => $transaction_id,
+                'transaction_id'   => $transaksiMap[$nomor_transaksi],
                 'product_type_id'  => $product['id']
             ]);
         }
-
 
         $db->transComplete();
 
