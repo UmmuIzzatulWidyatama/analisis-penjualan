@@ -10,6 +10,7 @@ use App\Models\Itemset3Model;
 use App\Models\AssociationRuleModel;
 use App\Models\TipeProdukModel;
 
+
 class ItemsetController extends BaseController
 {
     public function index()
@@ -570,5 +571,6 @@ class ItemsetController extends BaseController
             'topItemset3' => $topItemset3
         ]);
     }
+
 
 }
