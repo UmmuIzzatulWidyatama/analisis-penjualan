@@ -57,9 +57,10 @@
     </style>
 </head>
 <body>
-    <h1>Laporan Analisis Data</h1>
+    <h1 style="text-align: center; font-weight: bold; margin: 0;">Toko Djati Intan Barokah</h1>
+    <h2 style="text-align: center; margin-top: 5px;">Analisis Laporan Penjualan Produk</h2>
 
-    <div style="background-color:#e0f2f1; padding:12px; margin-bottom:20px; border-left:5px solid #26a69a;">
+    <div style="background-color:#e0f2f1; padding:12px; margin-top:10px; border-left:5px solid #26a69a;">
         <p><strong>Deskripsi Analisis:</strong> <?= esc($analisisData['description']) ?></p>
         <p><strong>Periode:</strong> <?= esc($analisisData['start_date']) ?> - <?= esc($analisisData['end_date']) ?></p>
         <p><strong>Total Transaksi:</strong> <?= esc($analisisData['transaction_count']) ?></p>
@@ -67,7 +68,7 @@
         <p><strong>Minimum Confidence:</strong> <?= esc($analisisData['minimum_confidence']) ?>%</p>
     </div>
 
-    <div style="background-color:#fff3e0; padding:12px; border-left:5px solid #ffb300;">
+    <div style="background-color:#fff3e0; padding:12px; margin-top:10px; border-left:5px solid #ffb300;">
         <p><strong>Itemset 1:</strong> Produk-produk seperti <em><?= $topItemset1[0]['item_name'] ?? '-' ?></em>, <em><?= $topItemset1[1]['item_name'] ?? '-' ?></em>, dan <em><?= $topItemset1[2]['item_name'] ?? '-' ?></em> merupakan item individual yang paling sering muncul dalam transaksi.</p>
         <p><strong>Itemset 2:</strong> Kombinasi <em><?= $topItemset2[0]['produk_1'] ?? '-' ?></em> dan <em><?= $topItemset2[0]['produk_2'] ?? '-' ?></em> memiliki support tertinggi (<?= $topItemset2[0]['support_percent'] ?? '-' ?>%).</p>
         <p><strong>Itemset 3:</strong> Kombinasi <em><?= $topItemset3[0]['produk_1'] ?? '-' ?></em>, <em><?= $topItemset3[0]['produk_2'] ?? '-' ?></em>, dan <em><?= $topItemset3[0]['produk_3'] ?? '-' ?></em> paling sering muncul (<?= $topItemset3[0]['support_percent'] ?? '-' ?>%).</p>
