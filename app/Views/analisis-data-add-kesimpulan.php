@@ -295,7 +295,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <?php foreach ($topItemset1 as $index => $item): ?>
+                        <?php foreach (array_slice($topItemset1, 0, 5) as $index => $item): ?>
                             <tr>
                                 <td><?= $index + 1 ?></td>
                                 <td><?= esc($item['item_name']) ?></td>
@@ -361,7 +361,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <?php foreach ($topItemset3 as $index => $row): ?>
+                        <?php foreach (array_slice($topItemset3, 0, 5) as $index => $row): ?>
                             <tr>
                                 <td><?= $index + 1 ?></td>
                                 <td><?= esc($row['produk_1']) ?>, <?= esc($row['produk_2']) ?> & <?= esc($row['produk_3']) ?></td>
@@ -495,8 +495,8 @@
 
         // Chart.js untuk Itemset 1
         const ctxItemset1 = document.getElementById('itemset1Chart').getContext('2d');
-        const labelsItemset1 = <?= json_encode(array_map(fn($item) => $item['item_name'], $topItemset1)) ?>;
-        const dataItemset1 = <?= json_encode(array_map(fn($item) => $item['support_percent'], $topItemset1)) ?>;
+        const labelsItemset1 = <?= json_encode(array_slice(array_map(fn($item) => $item['item_name'], $topItemset1), 0, 5)) ?>;
+        const dataItemset1 = <?= json_encode(array_slice(array_map(fn($item) => $item['support_percent'], $topItemset1), 0, 5)) ?>;
 
         new Chart(ctxItemset1, {
             type: 'bar',
@@ -523,8 +523,8 @@
 
         // Chart.js untuk Itemset 2
         const ctxItemset2 = document.getElementById('itemset2Chart').getContext('2d');
-        const labelsItemset2 = <?= json_encode(array_map(fn($row) => $row['produk_1'] . ' & ' . $row['produk_2'], $topItemset2)) ?>;
-        const dataItemset2 = <?= json_encode(array_map(fn($row) => $row['support_percent'], $topItemset2)) ?>;
+        const labelsItemset2 = <?= json_encode(array_slice(array_map(fn($row) => $row['produk_1'] . ' & ' . $row['produk_2'], $topItemset2), 0, 5)) ?>;
+        const dataItemset2 = <?= json_encode(array_slice(array_map(fn($row) => $row['support_percent'], $topItemset2), 0, 5)) ?>;
 
         new Chart(ctxItemset2, {
             type: 'bar',
@@ -551,9 +551,9 @@
 
         // Chart.js untuk Itemset 3
         const ctxItemset3 = document.getElementById('itemset3Chart').getContext('2d');
-        const labelsItemset3 = <?= json_encode(array_map(fn($row) => $row['produk_1'] . ', ' . $row['produk_2'] . ' & ' . $row['produk_3'], $topItemset3)) ?>;
-        const dataItemset3 = <?= json_encode(array_map(fn($row) => $row['support_percent'], $topItemset3)) ?>;
-
+        const labelsItemset3 = <?= json_encode(array_slice(array_map(fn($row) => $row['produk_1'] . ', ' . $row['produk_2'] . ' & ' . $row['produk_3'], $topItemset3), 0, 5)) ?>;
+        const dataItemset3 = <?= json_encode(array_slice(array_map(fn($row) => $row['support_percent'], $topItemset3), 0, 5)) ?>;
+        
         new Chart(ctxItemset3, {
             type: 'bar',
             data: {
