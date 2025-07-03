@@ -529,7 +529,7 @@ class AnalisisDataController extends BaseController
         $dompdf->setPaper('A4', 'portrait');
         $dompdf->render();
 
-        return $dompdf->stream("laporan-analisis-{$id}.pdf", ['Attachment' => true]);
+        return $dompdf->stream("Laporan Analisis Penjualan Produk.pdf", ['Attachment' => true]);
     }
 
 
