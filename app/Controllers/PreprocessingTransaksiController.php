@@ -5,6 +5,8 @@ namespace App\Controllers;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use PhpOffice\PhpSpreadsheet\IOFactory;
+use PhpOffice\PhpSpreadsheet\Cell\DataType;
+use PhpOffice\PhpSpreadsheet\Style\NumberFormat;
 
 class PreprocessingTransaksiController extends BaseController
 {
@@ -64,7 +66,11 @@ class PreprocessingTransaksiController extends BaseController
             $rowNum = 2;
             foreach ($result as $row) {
                 $sheetOut->setCellValue("A$rowNum", $row[0]);
-                $sheetOut->setCellValue("B$rowNum", $row[1]);
+
+                $dateFormatted = date('Y-m-d', strtotime($row[1]));
+                $sheetOut->setCellValueExplicit("B$rowNum", $dateFormatted, DataType::TYPE_STRING);
+                $sheetOut->getStyle("B$rowNum")->getNumberFormat()->setFormatCode(NumberFormat::FORMAT_DATE_YYYYMMDD2);
+
                 $sheetOut->setCellValue("C$rowNum", $row[2]);
                 $rowNum++;
             }

@@ -5,8 +5,7 @@ namespace App\Controllers;
 use App\Models\TransactionModel;
 use App\Models\TransactionDetailModel;
 use App\Models\TipeProdukModel;
-
-use PhpOffice\PhpSpreadsheet\IOFactory;
+use PhpOffice\PhpSpreadsheet\Shared\Date as ExcelDate;
 
 class TransaksiController extends BaseController
 {
@@ -195,16 +194,22 @@ class TransaksiController extends BaseController
                 $saleDateFormatted = '';
 
                 // Format Tanggal
-                $saleDateRaw = trim($tanggalCell->getFormattedValue());
-                $parsedDate = \DateTime::createFromFormat('d/m/Y', $saleDateRaw);
-                if (!$parsedDate) {
-                    $parsedDate = \DateTime::createFromFormat('Y-m-d', $saleDateRaw);
-                }
-                if ($parsedDate) {
-                    $saleDateFormatted = $parsedDate->format('Y-m-d');
+                $saleDateRaw = $tanggalCell->getValue(); // gunakan getValue untuk menangkap semua tipe
+
+                if ($saleDateRaw instanceof \DateTime) {
+                    $saleDateFormatted = $saleDateRaw->format('Y-m-d');
+                } elseif (is_numeric($saleDateRaw)) {
+                    $excelDate = ExcelDate::excelToDateTimeObject($saleDateRaw);
+                    $saleDateFormatted = $excelDate->format('Y-m-d');
                 } else {
-                    $isValid = false;
-                    $statusMessage = 'Format tanggal tidak valid';
+                    $parsedDate = \DateTime::createFromFormat('d/m/Y', $saleDateRaw)
+                        ?: \DateTime::createFromFormat('Y-m-d', $saleDateRaw);
+                    if ($parsedDate) {
+                        $saleDateFormatted = $parsedDate->format('Y-m-d');
+                    } else {
+                        $isValid = false;
+                        $statusMessage = 'Format tanggal tidak valid';
+                    }
                 }
 
                 // Validasi kosong
