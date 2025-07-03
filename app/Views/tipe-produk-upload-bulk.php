@@ -40,7 +40,7 @@
         .navbar-menu a:hover {
             background-color: #e5e7eb;
         }
-        .navbar .logout {
+        .navbar .logout { 
             text-decoration: none;
             color: #374151;
             font-size: 14px;

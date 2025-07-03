@@ -207,10 +207,4 @@ class TipeProdukController extends BaseController
 
         return redirect()->to('/tipe-produk')->with('message', 'Berhasil menyimpan data!');
     }
-
-    public function downloadTemplate()
-    {
-        return $this->response->download(WRITEPATH . 'uploads/template-upload-produk.xlsx', null);
-    }
-
 }

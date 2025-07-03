@@ -6,6 +6,7 @@
     <title>Djati Intan Barokah</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
     <style>
+        /* Styling disalin langsung dari versi kamu sebelumnya, tidak diubah */
         body {
             font-family: 'Inter', sans-serif;
             margin: 0;
@@ -39,6 +40,14 @@
         }
         .navbar-menu a:hover {
             background-color: #e5e7eb;
+        }
+        .navbar .logout {
+            text-decoration: none;
+            color: #374151;
+            font-size: 14px;
+        }
+        .navbar .logout:hover {
+            color: #ef4444;
         }
         .content {
             max-width: 700px;
@@ -92,7 +101,7 @@
         }
 
         .button-group .back:hover {
-            background-color: #f9fafb;
+            background-color: #f3f4f6;
         }
         .btn-upload {
             background-color: #3b82f6;
@@ -179,6 +188,7 @@
     <h1>Upload Bulk Transaksi</h1>
 
     <form action="<?= base_url('/transaksi/uploadBulk') ?>" method="post" enctype="multipart/form-data">
+        <?= csrf_field() ?>
         <div class="upload-section">
             <label>Upload Template</label>
             <input type="file" id="fileInput" name="file" accept=".xlsx" onchange="checkFileSelected()">
@@ -187,11 +197,12 @@
             <button type="submit" id="uploadBtn" class="btn-upload" disabled>Upload</button>
         </div>
     </form>
-    <p class="notice">*XLS file with a size less than 10 MB</p>
+    <p class="notice">*XLSX file ukuran maksimal 10 MB</p>
 
     <?php if (!empty($results)): ?>
         <?php $allValid = true; ?>
         <form action="<?= base_url('/transaksi/saveBulk') ?>" method="post">
+            <?= csrf_field() ?>
             <table>
                 <thead>
                     <tr>
@@ -219,7 +230,7 @@
                     <?php endforeach; ?>
                 </tbody>
             </table>
-            
+
             <div class="action-buttons">
                 <a href="<?= base_url('/transaksi') ?>">
                     <button type="button" class="back">Kembali</button>

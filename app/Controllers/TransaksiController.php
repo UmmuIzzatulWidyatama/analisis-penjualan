@@ -159,6 +159,9 @@ class TransaksiController extends BaseController
 
     public function uploadBulk()
     {
+        if (ob_get_length()) {
+            ob_clean(); // clear all output buffer
+        }
         $file = $this->request->getFile('file');
         $results = [];
 
@@ -240,48 +243,51 @@ class TransaksiController extends BaseController
 
     public function saveBulk()
     {
+        if (ob_get_length()) {
+            ob_clean(); // clear all output buffer
+        }
         $db = \Config\Database::connect();
         $transactionModel = new \App\Models\TransactionModel();
         $transactionDetailModel = new \App\Models\TransactionDetailModel();
         $productModel = new \App\Models\TipeProdukModel();
 
-        $nomor_transaksis = $this->request->getPost('nomor_transaksis');
-        $sale_dates = $this->request->getPost('sale_dates');
-        $kode_items = $this->request->getPost('kode_items');
+        // Ambil dari session, bukan dari POST
+        $bulkData = session()->get('bulk_transaksi_data');
 
-        if (empty($nomor_transaksis) || empty($sale_dates) || empty($kode_items)) {
-            return redirect()->back()->with('error', 'Tidak ada data valid untuk disimpan.');
+        if (!$bulkData || count($bulkData) === 0) {
+            return redirect()->back()->with('error', 'Tidak ada data yang tersedia untuk disimpan.');
         }
 
         $db->transStart();
+        $transaksiMap = [];
 
-        $transaksiMap = []; // mapping nomor_transaksi => transaction_id
-
-        foreach ($nomor_transaksis as $index => $nomor_transaksi) {
-            $sale_date  = $sale_dates[$index];
-            $kode_item  = $kode_items[$index];
-
-            // Cari produk
-            $product = $productModel->where('kode_item', $kode_item)->first();
-            if (!$product) {
-                log_message('error', "Kode item tidak ditemukan: " . $kode_item);
+        foreach ($bulkData as $row) {
+            // Hanya proses data yang valid
+            if (empty($row['is_valid']) || $row['is_valid'] === false) {
                 continue;
             }
 
-            // Cek apakah transaksi sudah dibuat
+            $nomor_transaksi = $row['nomor_transaksi'];
+            $sale_date = $row['sale_date'];
+            $kode_item = $row['kode_item'];
+
+            $product = $productModel->where('kode_item', $kode_item)->first();
+            if (!$product) {
+                log_message('error', "Kode item tidak ditemukan saat simpan: " . $kode_item);
+                continue;
+            }
+
             if (!isset($transaksiMap[$nomor_transaksi])) {
-                // Buat transaksi baru
                 $transactionModel->insert([
-                    'sale_date'        => $sale_date,
-                    'nomor_transaksi'  => $nomor_transaksi,
+                    'sale_date' => $sale_date,
+                    'nomor_transaksi' => $nomor_transaksi,
                 ]);
                 $transaksiMap[$nomor_transaksi] = $transactionModel->getInsertID();
             }
 
-            // Simpan detail
             $transactionDetailModel->insert([
-                'transaction_id'   => $transaksiMap[$nomor_transaksi],
-                'product_type_id'  => $product['id']
+                'transaction_id' => $transaksiMap[$nomor_transaksi],
+                'product_type_id' => $product['id'],
             ]);
         }
 
@@ -291,7 +297,9 @@ class TransaksiController extends BaseController
             return redirect()->back()->with('error', 'Gagal menyimpan data bulk.');
         }
 
-        return redirect()->to('/transaksi')->with('success', 'Data bulk transaksi berhasil disimpan.');
+        session()->remove('bulk_transaksi_data'); // bersihkan setelah simpan
+        return redirect()->to('/transaksi')->with('success', 'Data transaksi berhasil disimpan.');
     }
+
 
 }
