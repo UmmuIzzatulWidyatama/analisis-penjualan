@@ -89,14 +89,14 @@ php spark test
 ## Itemset 1
 ![Itemset 1](images/2_analisis_data_itemset_1.png)
 
-## Asosiasi 2 Itemset
-![Asosiasi 2 Itemset](images/3_analisis_data_asosiasi_2_itemset.png)
-
 ## Itemset 2
 ![Itemset 2](images/4_analisis_data_itemset_2.png)
 
 ## Itemset 3
 ![Itemset 3](images/5_analisis_data_itemset_3.png)
+
+## Asosiasi 2 Itemset
+![Asosiasi 2 Itemset](images/3_analisis_data_asosiasi_2_itemset.png)
 
 ## Lift Ratio
 ![Lift Ratio](images/6_analisis_data_lift_ratio.png)
