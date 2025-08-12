@@ -81,3 +81,25 @@ php spark test
 - **Visualization:** Chart.js, D3.js
 - **Data Analysis:** PHP and SQL
 
+# Analisis Penjualan
+
+## Main Info
+![Main Info](images/1_analisis data_main info.png)
+
+## Itemset 1
+![Itemset 1](images/2_analisis data_itemset 1.png)
+
+## Asosiasi 2 Itemset
+![Asosiasi 2 Itemset](images/3_analisis data_asosiasi 2 itemset.png)
+
+## Itemset 2
+![Itemset 2](images/4_analisis data_itemset 2.png)
+
+## Itemset 3
+![Itemset 3](images/5_analisis data_itemset 3.png)
+
+## Lift Ratio
+![Lift Ratio](images/6_analisis data_lift ratio.png)
+
+## Kesimpulan
+![Kesimpulan](images/7_analisis data_kesimpulan bagian pertama.png)
