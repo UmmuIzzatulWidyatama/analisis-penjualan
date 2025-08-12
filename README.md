@@ -84,22 +84,22 @@ php spark test
 # Analisis Penjualan
 
 ## Main Info
-![Main Info](images/1_analisis data_main info.png)
+![Main Info](images/1_analisis_data_main_info.png)
 
 ## Itemset 1
-![Itemset 1](images/2_analisis data_itemset 1.png)
+![Itemset 1](images/2_analisis_data_itemset_1.png)
 
 ## Asosiasi 2 Itemset
-![Asosiasi 2 Itemset](images/3_analisis data_asosiasi 2 itemset.png)
+![Asosiasi 2 Itemset](images/3_analisis_data_asosiasi_2_itemset.png)
 
 ## Itemset 2
-![Itemset 2](images/4_analisis data_itemset 2.png)
+![Itemset 2](images/4_analisis_data_itemset_2.png)
 
 ## Itemset 3
-![Itemset 3](images/5_analisis data_itemset 3.png)
+![Itemset 3](images/5_analisis_data_itemset_3.png)
 
 ## Lift Ratio
-![Lift Ratio](images/6_analisis data_lift ratio.png)
+![Lift Ratio](images/6_analisis_data_lift_ratio.png)
 
 ## Kesimpulan
-![Kesimpulan](images/7_analisis data_kesimpulan bagian pertama.png)
+![Kesimpulan](images/7_analisis_data_kesimpulan_bagian_pertama.png)
