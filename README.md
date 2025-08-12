@@ -1,68 +1,83 @@
-# CodeIgniter 4 Application Starter
 
-## What is CodeIgniter?
+# Description
 
-CodeIgniter is a PHP full-stack web framework that is light, fast, flexible and secure.
-More information can be found at the [official site](https://codeigniter.com).
+A platform for product sales data analysis through the implementation of the Apriori algorithm.
 
-This repository holds a composer-installable app starter.
-It has been built from the
-[development repository](https://github.com/codeigniter4/CodeIgniter4).
+## 📁 Directory Structure
 
-More information about the plans for version 4 can be found in [CodeIgniter 4](https://forum.codeigniter.com/forumdisplay.php?fid=28) on the forums.
+Here is the main directory structure of the project:
 
-You can read the [user guide](https://codeigniter.com/user_guide/)
-corresponding to the latest version of the framework.
+```
+analisis-penjualan/
+├── app/                   # Application code
+├── public/                # Public assets (images, CSS, JS)
+├── tests/                 # Unit tests
+├── writable/              # Directory for writable files
+├── .gitignore             # List of files and directories ignored by Git
+├── LICENSE                # Project license
+├── README.md              # Project documentation
+├── composer.json          # PHP dependencies
+└── env                    # Environment variables
+```
 
-## Installation & updates
+## ⚙️ Installation
 
-`composer create-project codeigniter4/appstarter` then `composer update` whenever
-there is a new release of the framework.
+To run this project locally, follow these steps:
 
-When updating, check the release notes to see if there are any changes you might need to apply
-to your `app` folder. The affected files can be copied or merged from
-`vendor/codeigniter4/framework/app`.
+1. **Clone the repository:**
 
-## Setup
+   ```bash
+   git clone https://github.com/UmmuIzzatulWidyatama/analisis-penjualan.git
+   cd analisis-penjualan
+   ```
 
-Copy `env` to `.env` and tailor for your app, specifically the baseURL
-and any database settings.
+2. **Install dependencies:**
 
-## Important Change with index.php
+   ```bash
+   composer install
+   ```
 
-`index.php` is no longer in the root of the project! It has been moved inside the *public* folder,
-for better security and separation of components.
+3. **Copy the `.env.example` file to `.env` and configure the database settings:**
 
-This means that you should configure your web server to "point" to your project's *public* folder, and
-not to the project root. A better practice would be to configure a virtual host to point there. A poor practice would be to point your web server to the project root and expect to enter *public/...*, as the rest of your logic and the
-framework are exposed.
+   ```bash
+   cp .env.example .env
+   ```
 
-**Please** read the user guide for a better explanation of how CI4 works!
+4. **Run database migrations and seeders (if needed):**
 
-## Repository Management
+   ```bash
+   php spark migrate
+   php spark db:seed
+   ```
 
-We use GitHub issues, in our main repository, to track **BUGS** and to track approved **DEVELOPMENT** work packages.
-We use our [forum](http://forum.codeigniter.com) to provide SUPPORT and to discuss
-FEATURE REQUESTS.
+5. **Start the development server:**
 
-This repository is a "distribution" one, built by our release preparation script.
-Problems with it can be raised on our forum, or as issues in the main repository.
+   ```bash
+   php spark serve
+   ```
 
-## Server Requirements
+The application can now be accessed at [http://localhost:8080](http://localhost:8080).
 
-PHP version 7.4 or higher is required, with the following extensions installed:
+## 🧪 Testing
 
-- [intl](http://php.net/manual/en/intl.requirements.php)
-- [mbstring](http://php.net/manual/en/mbstring.installation.php)
+To run unit tests, use the following command:
 
-> [!WARNING]
-> The end of life date for PHP 7.4 was November 28, 2022.
-> The end of life date for PHP 8.0 was November 26, 2023.
-> If you are still using PHP 7.4 or 8.0, you should upgrade immediately.
-> The end of life date for PHP 8.1 will be November 25, 2024.
+```bash
+php spark test
+```
 
-Additionally, make sure that the following extensions are enabled in your PHP:
+## 📈 Key Features
 
-- json (enabled by default - don't turn it off)
-- [mysqlnd](http://php.net/manual/en/mysqlnd.install.php) if you plan to use MySQL
-- [libcurl](http://php.net/manual/en/curl.requirements.php) if you plan to use the HTTP\CURLRequest library
+- **Sales Trend Analysis:** Identify seasonal patterns and long-term trends in sales data.
+- **Customer Segmentation:** Group customers based on purchasing behavior for more targeted marketing strategies.
+- **Data Visualization:** Use charts and graphs to make data understanding and presentation easier.
+- **Sales Prediction:** Implement predictive models to forecast future sales.
+
+## 📚 Technologies Used
+
+- **Backend:** PHP with CodeIgniter 4
+- **Database:** MySQL
+- **Frontend:** HTML, CSS, JavaScript
+- **Visualization:** Chart.js, D3.js
+- **Data Analysis:** PHP and SQL
+
